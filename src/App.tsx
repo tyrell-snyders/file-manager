@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { Volume } from "./types";
+import { useNavigate } from "react-router";
 
 function App() {
 	const [volumes, setVolumes] = useState<Volume[]>([])
-
+	const navigate = useNavigate();
+	
 	// get volumes
 	async function getVolumes() {
 		try {
@@ -17,10 +19,8 @@ function App() {
 	}
 
 	let render = 0;
-		useEffect(() => {
-			if (render === 0) {
-		getVolumes().catch(console.error);
-		}
+	useEffect(() => {
+		if (render === 0) getVolumes();
 		render += 1;
 	}, [])
 

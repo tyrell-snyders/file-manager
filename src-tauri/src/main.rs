@@ -3,7 +3,6 @@
 mod utils;
 pub mod commands;
 
-
 fn main() {
     file_manager_lib::run()
 }
