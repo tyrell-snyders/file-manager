@@ -1,7 +1,6 @@
-use tauri::{EventLoopMessage, Wry};
-use tauri_plugin_opener::Builder;
+use tauri;
 mod commands;
-use commands::storage::get_drives;
+use commands::storage::{ get_drives, get_volumes };
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -14,7 +13,7 @@ fn greet(name: &str) -> String {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, get_drives])
+        .invoke_handler(tauri::generate_handler![greet, get_drives, get_volumes])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
