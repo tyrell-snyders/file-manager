@@ -1,42 +1,37 @@
 import { useState } from "react";
 import { DirectoryContent } from "../types";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../state/store/store";
+import { navigateTo, goBack, goForward } from "../state/navigationSlice";
 
-export default function useNavigation(
-    searchResults: DirectoryContent[],
-    setSearcResults: Function
-) {
-    const [pathHistory, setPathHistory] = useState([""])
-    const [historyPlace, setHistoryPlace] = useState(0)
-    const [currentVolume, setCurrentVolume] = useState("")
+export default function useNavigation() {
+    const dispatch = useDispatch()
+    const { pathHistory, historyPlace, currentVolume } = useSelector((state: RootState) => state.navigation);
 
     const onBackArrowClick = () => {
-        if (searchResults.length > 0) {
-            setHistoryPlace(historyPlace)
+        dispatch(goBack());
+    };
 
-            setSearcResults([]);
-            return;
-        }
+    const onForwardArrowClick = () => {
+        dispatch(goForward());
+    };
 
-        pathHistory.push(pathHistory[historyPlace - 1]);
-        setHistoryPlace((prev) => prev - 1);
-    }
-
-    const onForwardArrowClick = () =>  setHistoryPlace((prev) => prev + 1);
-    const canGoForward = (): boolean => historyPlace < pathHistory.length - 1; 
+    const canGoForward = (): boolean => historyPlace < pathHistory.length - 1;
     const canGoBack = (): boolean => historyPlace > 0;
+
+    const navigate = (path: string) => {
+        dispatch(navigateTo(path));
+    };
 
     return {
         pathHistory,
-        setPathHistory,
         historyPlace,
-        setHistoryPlace,
+        currentVolume,
         onBackArrowClick,
         onForwardArrowClick,
         canGoForward,
         canGoBack,
-        currentVolume,
-        setCurrentVolume,
-
+        navigate,
     }
 
 }

@@ -1,18 +1,17 @@
 import "./App.css";
-import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
+// import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import ThisPC from "./pages/ThisPC";
+import { useSelector } from "react-redux";
+import { RootState } from "./state/store/store";
+import VolumePage from "./pages/VolumePage";
 
 function App() {
+	const currentVolume = useSelector((state: RootState) => state.navigation.currentVolume);
 
 	return (
-		<Router>
-			<nav>
-				<Link to="/">This PC</Link>
-			</nav>
-			<Routes>
-				<Route path="/" element={<ThisPC />} />
-			</Routes>
-		</Router>
+		<div>
+            {currentVolume === "" ? <ThisPC /> : <VolumePage volumePath={currentVolume} />}
+        </div>
 	)
 }
 

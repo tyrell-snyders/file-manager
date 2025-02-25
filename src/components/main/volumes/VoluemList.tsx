@@ -9,7 +9,7 @@ interface Props {
 
 export default function VolumeList({ volumes, onClick }: Props) {
     return (
-        <div className="space-x-4">
+        <div className="grid grid-cols-3 m-6">
             {volumes.length == 0 ? <LoadingPlaceholder /> : volumes.map((v, i) => (
                 <VolumeComponent 
                     onClick={() => onClick(v.mountpoint)}
