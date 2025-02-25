@@ -1,21 +1,10 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import Button, { ButtonSize } from "./components/Button";
 import { Volume } from "./types";
 
 function App() {
-	const [drives, setDrives] = useState<string[]>([])
 	const [volumes, setVolumes] = useState<Volume[]>([])
-	// get the drives
-	async function get_drives() {
-		try {
-			const result = await invoke<string[]>('get_drives')
-			setDrives(result)
-		} catch (e)  {
-			console.error("Error fetching drives:", e)
-		}
-	}
 
 	// get volumes
 	async function getVolumes() {
@@ -38,7 +27,6 @@ function App() {
 	return (
 		<>
 			<div>
-				{/* <Button size={ButtonSize.Small} onClick={getVolumes} children={"Get Volumes"} /> */}
 				<div className="p-4 m-4">
 					<h1>This PC</h1>
 					<div className="items-center justify-center">

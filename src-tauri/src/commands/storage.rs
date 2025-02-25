@@ -1,22 +1,22 @@
 use std::path::PathBuf;
 
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 use tokio::task;
-use sysinfo::{Disk, Disks };
+use sysinfo::{ Disk, Disks };
 
 use super::bytes_to_gb;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Volume {
-    name: String, 
-    mountpoint: PathBuf,
-    available_gb: u16,
-    used_gb: u16,
-    total_gb: u16,
+    pub name: String, 
+    pub mountpoint: PathBuf,
+    pub available_gb: u16,
+    pub used_gb: u16,
+    pub total_gb: u16,
 }
 
 impl Volume {
-    fn from(disk: &Disk) -> Self {
+    pub fn from(disk: &Disk) -> Self {
         let used_bytes = disk.total_space() - disk.available_space();
         let available_gb = bytes_to_gb(disk.available_space());
         let used_gb  = bytes_to_gb(used_bytes);
@@ -39,37 +39,6 @@ impl Volume {
             mountpoint
         }
     }
-}
-
-/// Retrieves a list of mounted drives on the system.
-///
-/// This function uses the `tokio::task::spawn_blocking` to spawn a blocking task that fetches the list of mounted drives.
-/// It utilizes the `sysinfo::Disks` struct to retrieve the drive information.
-///
-/// # Returns
-///
-/// A `Vec<String>` containing the mount points of the mounted drives.
-///
-/// # Errors
-///
-/// If an error occurs while fetching the drives, it will return an error message as a string.
-#[tauri::command]
-pub async fn get_drives() -> Vec<String> {
-    let drives = task::spawn_blocking(|| {
-        let mut disks = Disks::new();
-        disks.refresh(true);
-
-        disks
-            .list()
-            .iter()
-            .map(|disk| disk.mount_point().display().to_string())
-            .collect::<Vec<_>>()
-    })
-    .await
-    .expect("Failed to fetch drives");
-
-    drives
-
 }
 
 #[tauri::command]
