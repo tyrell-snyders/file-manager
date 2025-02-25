@@ -58,8 +58,8 @@ pub async fn get_volumes() -> Result<Vec<Volume>, ()> {
 pub async fn list_files(path: String) -> Result<Vec<PathBuf>, String> {
     task::spawn_blocking(move || {
         let mut dir = vec![];
-        for entry in WalkDir::new(path) {
-            let entry = entry.map_err(|e| e.to_string())?;
+        for entry in WalkDir::new(path).into_iter().filter_map(|e| e.ok()) {
+            // let entry = entry.map_err(|e| e.to_string())?; // This line denies entry into every directory except cloud directories
             dir.push(entry.path().to_path_buf());
         }
         Ok(dir)
