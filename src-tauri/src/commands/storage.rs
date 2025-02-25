@@ -51,8 +51,6 @@ pub async fn get_volumes() -> Result<Vec<Volume>, ()> {
             v
         }).collect();
 
-    println!("{:?}", volume);
-
     Ok(volume)
 }
 

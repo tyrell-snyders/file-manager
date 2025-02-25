@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "file-manager",
+        "title": "File Manager",
         "width": 800,
         "height": 600
       }
