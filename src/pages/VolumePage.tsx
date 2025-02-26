@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useNavigation from "../hooks/useNavigation";
 import { invoke } from "@tauri-apps/api/core";
 import LoadingPlaceholder from "../components/LoadingPlaceholder";
+import ErrorPlaceholder from "../components/ErrorPlaceholder";
 
 interface Content {
     path: string;
@@ -28,15 +29,17 @@ export default function VolumePage({ volumePath }: { volumePath: string }) {
     }, [volumePath])
 
     return (
-        <div>
+        <div className="">
             <h1>Volume: {volumePath}</h1>
             <button onClick={onBackArrowClick}>Back</button>
-            {error && <p style={{ color: "red" }}>Error: {error}</p>}
-            {content?.length === 0 ? <LoadingPlaceholder /> : content?.map((c, i) => (
-                <div key={i}>
-                    {c.path}
-                </div>
-            ))}
+            <div className="vh-100 grid md:grid-cols-2 lg:grid-cols-3">
+                {error && <ErrorPlaceholder error={error} />}
+                {content?.length === 0 ? <LoadingPlaceholder /> : content?.map((c, i) => (
+                    <button key={i} className="m-2 border-2 border-gray-400 p-10 rounded-md">
+                        {c.path}
+                    </button>
+                ))}
+            </div>
         </div>
     )
 }
