@@ -1,9 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import navigationReducer from "../navigationSlice";
-
+import volumeReducer from "../volumeSlice";
 export const store = configureStore({
     reducer: {
         navigation: navigationReducer,
+        volume: volumeReducer
     },
 });
 
