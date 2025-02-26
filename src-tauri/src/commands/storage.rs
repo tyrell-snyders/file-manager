@@ -1,8 +1,8 @@
-use std::path::PathBuf;
+use std::{ path::PathBuf};
 use tokio::task;
 use serde::{ Deserialize, Serialize };
 use sysinfo::{ Disk, Disks };
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 
 use super::bytes_to_gb;
 
@@ -54,13 +54,42 @@ pub async fn get_volumes() -> Result<Vec<Volume>, ()> {
     Ok(volume)
 }
 
+fn is_hidden(entry: &DirEntry) -> bool {
+    entry.file_name()
+        .to_str()
+        .map(|s| s.starts_with("."))
+        .unwrap_or(false)
+}
+
 #[tauri::command]
 pub async fn list_files(path: String) -> Result<Vec<PathBuf>, String> {
+    // WalkDir
+    // task::spawn_blocking(move || {
+    //     let mut dir = vec![];
+    //     for entry in WalkDir::new(path).into_iter().filter_entry(|e| !is_hidden(e)) {
+    //         if let Ok(entry) = entry {
+    //             dir.push(entry.path().to_path_buf());
+    //         }
+    //     }
+    //     Ok(dir)
+    // })
+    // .await
+    // .map_err(|e| e.to_string())?
+
+    // std::fs::read_dir
     task::spawn_blocking(move || {
         let mut dir = vec![];
-        for entry in WalkDir::new(path).into_iter().filter_map(|e| e.ok()) {
-            // let entry = entry.map_err(|e| e.to_string())?; // This line denies entry into every directory except cloud directories
-            dir.push(entry.path().to_path_buf());
+        for entry in std::fs::read_dir(&path)
+            .map_err(|e| e.to_string())?
+            .filter_map(Result::ok)
+            .filter(|e| {
+                e.file_name()
+                    .to_str()
+                    .map(|s| !s.starts_with("."))
+                    .unwrap_or(false)
+            })
+        {
+            dir.push(entry.path());
         }
         Ok(dir)
     })
