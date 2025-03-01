@@ -25,6 +25,9 @@ export default function SearchBar({
     })
 
     const [currentPlace, setCurrentPlace] = useState<string | undefined>()
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [searchResults, setSearchResults] = useState<string[]>([]);
 
     useEffect(() => {
         const split = currentDirectoryPath.split("\\");
@@ -36,7 +39,30 @@ export default function SearchBar({
             alert("Please select a volume before searching");
             return;
         }
+
+        try {
+            const res: string[] = await invoke("search_file", {
+                path: currentVolume,
+                query: searchValue
+            })
+            setLoading(true);
+            if (res.length > 0) {
+                setSearchResults([]);
+                setError("No results found");
+                setLoading(false);
+            }
+
+            setSearchResults(res);
+            setError(null);
+        } catch (err) {
+            setError(err as string);
+            alert(err);
+        }
+
+        setLoading(false);
+        console.log(searchResults);
     }
+
 
     return (
         <div className="absolute right-4 top-4">
