@@ -1,8 +1,8 @@
-use std::{ path::PathBuf};
+use std::path::PathBuf;
 use tokio::task;
 use serde::{ Deserialize, Serialize };
 use sysinfo::{ Disk, Disks };
-use walkdir::{DirEntry, WalkDir};
+use walkdir::WalkDir;
 
 use super::bytes_to_gb;
 
@@ -54,29 +54,8 @@ pub async fn get_volumes() -> Result<Vec<Volume>, ()> {
     Ok(volume)
 }
 
-fn is_hidden(entry: &DirEntry) -> bool {
-    entry.file_name()
-        .to_str()
-        .map(|s| s.starts_with("."))
-        .unwrap_or(false)
-}
-
 #[tauri::command]
 pub async fn list_files(path: String) -> Result<Vec<PathBuf>, String> {
-    // WalkDir
-    // task::spawn_blocking(move || {
-    //     let mut dir = vec![];
-    //     for entry in WalkDir::new(path).into_iter().filter_entry(|e| !is_hidden(e)) {
-    //         if let Ok(entry) = entry {
-    //             dir.push(entry.path().to_path_buf());
-    //         }
-    //     }
-    //     Ok(dir)
-    // })
-    // .await
-    // .map_err(|e| e.to_string())?
-
-    // std::fs::read_dir
     task::spawn_blocking(move || {
         let mut dir = vec![];
         for entry in std::fs::read_dir(&path)
@@ -94,5 +73,20 @@ pub async fn list_files(path: String) -> Result<Vec<PathBuf>, String> {
         Ok(dir)
     })
     .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn search_file(path: String, query: String) -> Result<Vec<PathBuf>, String> {
+    task::spawn_blocking(move || {
+        let mut files = vec![];
+        for entry in WalkDir::new(path) {
+            let entry = entry.unwrap();
+            if entry.file_name().to_str().unwrap().contains(&query) {
+                files.push(entry.path().to_path_buf());
+            }
+        } 
+        Ok(files)
+    }).await
     .map_err(|e| e.to_string())?
 }
