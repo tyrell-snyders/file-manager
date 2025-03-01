@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { DirectoryContent } from "../types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store/store";
 import { navigateTo, goBack, goForward } from "../state/navigationSlice";

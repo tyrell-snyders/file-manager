@@ -1,6 +1,11 @@
-import {Dispatch, SetStateAction, useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchResults, setError, returnState } from "../../state/searchSlice";
 import { invoke } from "@tauri-apps/api/core";
 import Input, { InputSize } from "../Input";
+import useNavigation from "../../hooks/useNavigation";
+import { RootState } from "../../state/store/store";
+// import { RootState } from "../../state/store/store";
 
 interface Props {
     currentVolume: string;
@@ -18,16 +23,19 @@ export default function SearchBar({
     currentVolume
 } : Props) {
     const [searchValue, setSearchValue] = useState("")
-    const [searchFilter, setSearchFilter] = useState<ISearchFilter>({
-        extension: "",
-        acceptFiles: true,
-        accepptDirectories: true
-    })
+    // const [searchFilter, setSearchFilter] = useState<ISearchFilter>({
+    //     extension: "",
+    //     acceptFiles: true,
+    //     accepptDirectories: true
+    // })
 
     const [currentPlace, setCurrentPlace] = useState<string | undefined>()
-    const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [searchResults, setSearchResults] = useState<string[]>([]);
+    
+
+    const dispatch = useDispatch();
+    const { navigate } = useNavigation();
+    const searchResult = useSelector((state: RootState) => state.search.searchResults);
 
     useEffect(() => {
         const split = currentDirectoryPath.split("\\");
@@ -35,34 +43,35 @@ export default function SearchBar({
     }, [currentDirectoryPath])
 
     async function onSearch() {
-        if (currentVolume.length == 0) {
+        if (currentVolume.length === 0) {
             alert("Please select a volume before searching");
             return;
         }
 
         try {
+            setLoading(true);
             const res: string[] = await invoke("search_file", {
                 path: currentVolume,
                 query: searchValue
-            })
-            setLoading(true);
-            if (res.length > 0) {
-                setSearchResults([]);
-                setError("No results found");
-                setLoading(false);
-            }
+            });
 
-            setSearchResults(res);
-            setError(null);
+            if (res.length > 0) {
+                dispatch(setSearchResults(res));
+                setError("");
+            } else {
+                setError("No results found");
+            }
         } catch (err) {
             setError(err as string);
-            alert(err);
         }
-
-        setLoading(false);
-        console.log(searchResults);
     }
 
+    useEffect(() => {  
+        const directory = searchResult.map(result => result.slice(0, result.lastIndexOf("S")))
+        if (searchResult.length > 0) {
+            navigate(directory[0]);
+        }
+    }, [searchResult])
 
     return (
         <div className="absolute right-4 top-4">

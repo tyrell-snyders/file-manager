@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import navigationReducer from "../navigationSlice";
 import volumeReducer from "../volumeSlice";
+import searchReducer from "../searchSlice"
 export const store = configureStore({
     reducer: {
         navigation: navigationReducer,
-        volume: volumeReducer
+        volume: volumeReducer,
+        search: searchReducer
     },
 });
 
