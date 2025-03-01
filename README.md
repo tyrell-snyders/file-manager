@@ -21,17 +21,17 @@ cd file-manager
 ```
 2. Install dependencies:
 ```bash
-npm install
+make install
 ```
 3. Build the Tauri Application:
 ```bash
-npm run tauri dev
+make build
 ```
 
 ### Running in Development mode
-To start the application in development mode with hot-reloading:
+To start the application in development mode on windows with hot-reloading:
 ```bash
-npm run tauri dev
+make run-windows
 ```
 
 ## Project Structure
