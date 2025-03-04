@@ -1,32 +1,31 @@
 import { useEffect, useState } from "react";
 import useNavigation from "../hooks/useNavigation";
-import { invoke } from "@tauri-apps/api/core";
 import LoadingPlaceholder from "../components/LoadingPlaceholder";
 import ErrorPlaceholder from "../components/ErrorPlaceholder";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../state/store/store";
+import { list_files } from "../IPC/IPCRequests";
+import { setVolume } from "../state/volumeSlice";
 
-interface Content {
-    path: string;
-}
 
 export default function VolumePage({ volumePath }: { volumePath: string }) {
     const { onBackArrowClick } = useNavigation();
-    const [content, setContent] = useState<Content[] | null>(null);
-    const [error, setError] = useState<string | null>(null);
-
-    async function getContent() {
-        try {
-            const cnt: string[] = await invoke("list_files", { path: volumePath });
-            setContent(cnt.map((path) => ({ path })))
-            setError(null)
-        } catch (err) {
-            setError(err as string);
-            setContent(null);
-        }
-    }
+    const dispatch = useDispatch();
+    const volume = useSelector((state: RootState) => state.volume.volume);
+    const [error, setError] = useState("")
 
     useEffect(() => {
-        getContent();
-    }, [volumePath])
+        const fetchVolume = async() => {
+            try {
+                const vol = await list_files(volumePath);
+                dispatch(setVolume(vol))
+            } catch (err) {
+                console.log(err);
+                setError("Error fetching volume");
+            }
+        }
+        fetchVolume();
+    }, [dispatch, volumePath])
 
     return (
         <div className="">
@@ -34,9 +33,9 @@ export default function VolumePage({ volumePath }: { volumePath: string }) {
             <button onClick={onBackArrowClick}>Back</button>
             <div className="vh-100 grid md:grid-cols-2 lg:grid-cols-3">
                 {error && <ErrorPlaceholder error={error} />}
-                {content?.length === 0 ? <LoadingPlaceholder /> : content?.map((c, i) => (
+                {volume?.length === 0 ? <LoadingPlaceholder /> : volume?.map((v, i) => (
                     <button key={i} className="m-2 border-2 border-gray-400 p-10 rounded-md">
-                        {c.path}
+                        {v.path}
                     </button>
                 ))}
             </div>

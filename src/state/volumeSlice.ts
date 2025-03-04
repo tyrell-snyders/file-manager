@@ -5,12 +5,17 @@ interface VoluemState {
     currentVolume: string;
     currentDirectoryPath: string;
     volumes: Volume[];
+    volume: Content[];
 }
 
+interface Content {
+    path: string;
+}
 const initialState: VoluemState = {
     currentVolume: "",
     currentDirectoryPath: "",
-    volumes: []
+    volumes: [],
+    volume: [],
 }
 
 const volumeSlice = createSlice({
@@ -26,8 +31,11 @@ const volumeSlice = createSlice({
         setVolumes: (state, action: PayloadAction<Volume[]>) => {
             state.volumes = action.payload;
         },
+        setVolume: (state, action: PayloadAction<string[]>) => {
+            state.volume = action.payload.map((path) => ({ path }));
+        }
     },
 });
 
-export const { setCurrentVolume, setCurrentDirectoryPath, setVolumes } = volumeSlice.actions;
+export const { setCurrentVolume, setCurrentDirectoryPath, setVolumes, setVolume } = volumeSlice.actions;
 export default volumeSlice.reducer;
