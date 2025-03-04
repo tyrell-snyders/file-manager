@@ -35,7 +35,7 @@ export default function Input(
         default: break;
     }
 
-    function onKeyDown({ key, target}: KeyboardEvent<HTMLInputElement>) {
+    function onKeyDown({ key }: KeyboardEvent<HTMLInputElement>) {
         if (key === "Enter" && onSubmit) onSubmit();
     }
 

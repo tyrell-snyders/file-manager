@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setSearchResults, setError, returnState } from "../../state/searchSlice";
+import { setSearchResults, setError } from "../../state/searchSlice";
 import { invoke } from "@tauri-apps/api/core";
 import Input, { InputSize } from "../Input";
 import useNavigation from "../../hooks/useNavigation";
 import { RootState } from "../../state/store/store";
-// import { RootState } from "../../state/store/store";
 
 interface Props {
     currentVolume: string;

@@ -1,31 +1,29 @@
-import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState } from "react";
-import { DirectoryContent, Volume } from "./../types";
+import { useEffect } from "react";
+import { Volume } from "./../types";
 import VolumeList from "../components/main/volumes/VoluemList";
 import useNavigation from "../hooks/useNavigation";
+import { get_volumes } from "../IPC/IPCRequests"
+import { RootState } from "../state/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { setVolumes } from "../state/volumeSlice";
 
 
 export default function ThisPC() {
-    const [volumes, setVolumes] = useState<Volume[]>([])
-    const [searchResults, setSearchResults] = useState<DirectoryContent[]>([])
-
     const { navigate } = useNavigation();
+	const volumes: Volume[] = useSelector((state: RootState) => state.volume.volumes)
+	const dispatch = useDispatch();
 
-	// get volumes
-	async function getVolumes() {
-		try {
-        	const newVolumes = await invoke<Volume[]>('get_volumes');
-        	setVolumes(newVolumes);
-		} catch (error) {
-			console.error("Error fetching volumes:", error);
-		}
-	}
-
-    let render = 0;
-	useEffect(() => {
-		if (render === 0) getVolumes();
-        render += 1;
-	}, [])
+    useEffect(() => {
+        const fetchVolumes = async () => {
+            try {
+                const loadVolumes = await get_volumes();
+                dispatch(setVolumes(loadVolumes));
+            } catch (err) {
+                console.error("Error fetching volumes:", err);
+            }
+        };
+        fetchVolumes();
+    }, [dispatch]);
 
     async function onVolumeClick(mountpoint: string) {
         navigate(mountpoint)

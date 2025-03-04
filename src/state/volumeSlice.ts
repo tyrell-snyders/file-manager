@@ -1,13 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Volume } from "../types";
 
 interface VoluemState {
     currentVolume: string;
     currentDirectoryPath: string;
+    volumes: Volume[];
 }
 
 const initialState: VoluemState = {
     currentVolume: "",
-    currentDirectoryPath: ""
+    currentDirectoryPath: "",
+    volumes: []
 }
 
 const volumeSlice = createSlice({
@@ -19,9 +22,12 @@ const volumeSlice = createSlice({
         },
         setCurrentDirectoryPath: (state, action: PayloadAction<string>) => {
             state.currentDirectoryPath = action.payload;
-        }
+        },
+        setVolumes: (state, action: PayloadAction<Volume[]>) => {
+            state.volumes = action.payload;
+        },
     },
 });
 
-export const { setCurrentVolume, setCurrentDirectoryPath } = volumeSlice.actions;
+export const { setCurrentVolume, setCurrentDirectoryPath, setVolumes } = volumeSlice.actions;
 export default volumeSlice.reducer;
