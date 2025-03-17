@@ -1,13 +1,18 @@
 use tauri;
 mod commands;
-use commands::storage::{ get_volumes, list_files, search_file };
+use commands::storage::{ get_volumes, list_files, search_file, get_files_metdata };
 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_volumes, list_files, search_file])
+        .invoke_handler(tauri::generate_handler![
+            get_volumes, 
+            list_files, 
+            search_file,
+            get_files_metdata
+        ])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    .expect("error while running tauri application");
 }

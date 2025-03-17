@@ -1,4 +1,6 @@
-use std::path::PathBuf;
+use std::fmt::format;
+use std::{fs::Metadata, path::PathBuf};
+use std::collections::HashMap;
 use tokio::task;
 use serde::{ Deserialize, Serialize };
 use sysinfo::{ Disk, Disks };
@@ -14,6 +16,7 @@ pub struct Volume {
     pub used_gb: u16,
     pub total_gb: u16,
 }
+
 
 impl Volume {
     pub fn from(disk: &Disk) -> Self {
@@ -83,6 +86,10 @@ pub async fn list_files(path: String) -> Result<Vec<PathBuf>, String> {
     .map_err(|e| e.to_string())?
 }
 
+fn metadata_to_string(metadata: &Metadata) -> String {
+    format!("{:?}", metadata)
+}
+
 #[tauri::command]
 pub async fn search_file(path: String, query: String) -> Result<Vec<PathBuf>, String> {
     task::spawn_blocking(move || {
@@ -95,5 +102,21 @@ pub async fn search_file(path: String, query: String) -> Result<Vec<PathBuf>, St
         println!("{:?}", files);
         Ok(files)
     }).await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn get_files_metdata(path: String) -> Result<HashMap<String, String>, String> {
+    task::spawn_blocking(move || {
+        let mut data = HashMap::new();
+        for entry in std::fs::read_dir(&path)
+            .map_err(|e| e.to_string())?
+            .filter_map(Result::ok)
+        {
+            data.insert(entry.file_name().to_string_lossy().to_string(), metadata_to_string(&entry.metadata().unwrap()));
+        }
+        Ok(data)
+    })
+    .await
     .map_err(|e| e.to_string())?
 }

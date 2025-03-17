@@ -7,6 +7,11 @@ export default function useNavigation() {
     const { pathHistory, historyPlace, currentVolume } = useSelector((state: RootState) => state.navigation);
 
     const onBackArrowClick = () => {
+        console.log({
+            currentVolume,
+            pathHistory,
+            historyPlace,
+        })
         dispatch(goBack());
     };
 
@@ -31,5 +36,4 @@ export default function useNavigation() {
         canGoBack,
         navigate,
     }
-
 }

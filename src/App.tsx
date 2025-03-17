@@ -9,20 +9,21 @@ import SearchBar from "./components/topbar/SearchBar";
 function App() {
 	const currentVolume = useSelector((state: RootState) => state.navigation.currentVolume);
 	const currentDirectoryPath = useSelector((state: RootState) => state.volume.currentDirectoryPath);
+	const historyPlace = useSelector((state: RootState) => state.navigation.historyPlace);
+
+	if (historyPlace === 0) {
+		return <ThisPC />;
+	}
 
 	return (
 		<div>
-            {currentVolume === "" ? 
-				<ThisPC /> : <>
-					<SearchBar 
-						currentDirectoryPath={currentDirectoryPath} 
-						currentVolume={currentVolume} 
-					/>
-					<VolumePage volumePath={currentVolume} />
-				</>
-			}
-        </div>
-	)
+			<SearchBar 
+				currentDirectoryPath={currentDirectoryPath} 
+				currentVolume={currentVolume} 
+			/>
+			<VolumePage volumePath={currentVolume} />
+		</div>
+	);
 }
 
 export default App;
