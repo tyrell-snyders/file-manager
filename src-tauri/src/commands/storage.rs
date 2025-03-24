@@ -1,4 +1,3 @@
-use std::fmt::format;
 use std::{fs::Metadata, path::PathBuf};
 use std::collections::HashMap;
 use tokio::task;
@@ -16,7 +15,6 @@ pub struct Volume {
     pub used_gb: u16,
     pub total_gb: u16,
 }
-
 
 impl Volume {
     pub fn from(disk: &Disk) -> Self {
@@ -47,7 +45,6 @@ impl Volume {
 #[tauri::command]
 pub async fn get_volumes() -> Result<Vec<Volume>, ()> {
     let disks = Disks::new_with_refreshed_list();
-    
     let volume = disks.iter()
         .map(|disk| {
             let v = Volume::from(disk);
@@ -86,6 +83,7 @@ pub async fn list_files(path: String) -> Result<Vec<PathBuf>, String> {
     .map_err(|e| e.to_string())?
 }
 
+// Formats the Metadata as a string
 fn metadata_to_string(metadata: &Metadata) -> String {
     format!("{:?}", metadata)
 }
@@ -105,8 +103,9 @@ pub async fn search_file(path: String, query: String) -> Result<Vec<PathBuf>, St
     .map_err(|e| e.to_string())?
 }
 
+// Get the metadata of all the files in the path
 #[tauri::command]
-pub async fn get_files_metdata(path: String) -> Result<HashMap<String, String>, String> {
+pub async fn get_files_metadata(path: String) -> Result<HashMap<String, String>, String> {
     task::spawn_blocking(move || {
         let mut data = HashMap::new();
         for entry in std::fs::read_dir(&path)

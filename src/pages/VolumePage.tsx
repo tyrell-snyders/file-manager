@@ -4,7 +4,7 @@ import LoadingPlaceholder from "../components/LoadingPlaceholder";
 import ErrorPlaceholder from "../components/ErrorPlaceholder";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store/store";
-import { list_files } from "../IPC/IPCRequests";
+import { get_files_metadata, list_files } from "../IPC/IPCRequests";
 import { setVolume } from "../state/volumeSlice";
 
 
@@ -12,12 +12,15 @@ export default function VolumePage({ volumePath }: { volumePath: string }) {
     const { onBackArrowClick } = useNavigation();
     const dispatch = useDispatch();
     const volume = useSelector((state: RootState) => state.volume.volume);
+    const [metadata, setMetadata] = useState<string[]>([]);
     const [error, setError] = useState("")
 
     useEffect(() => {
         const fetchVolume = async() => {
             try {
                 const vol = await list_files(volumePath);
+                const mtd = await get_files_metadata(volumePath);
+                setMetadata(mtd);
                 dispatch(setVolume(vol))
             } catch (err) {
                 console.log(err);
@@ -26,6 +29,10 @@ export default function VolumePage({ volumePath }: { volumePath: string }) {
         }
         fetchVolume();
     }, [dispatch, volumePath])
+
+    useEffect(() => {
+        console.log(metadata); //testing the metadata to see the structure
+    }, [metadata])
 
     return (
         <div className="">

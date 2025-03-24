@@ -5,3 +5,5 @@ import { Volume } from "../types";
 export const get_volumes = async () => await invoke<Volume[]>("get_volumes");
 export const list_files = async (volumePath: string) => 
     await invoke<string[]>("list_files", { path: volumePath });
+export const get_files_metadata = async (volumePath: string) =>
+    await invoke<string[]>("get_files_metadata", { path: volumePath });

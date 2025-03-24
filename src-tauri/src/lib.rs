@@ -1,6 +1,6 @@
 use tauri;
 mod commands;
-use commands::storage::{ get_volumes, list_files, search_file, get_files_metdata };
+use commands::storage::{ get_volumes, list_files, search_file, get_files_metadata };
 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -11,7 +11,7 @@ pub fn run() {
             get_volumes, 
             list_files, 
             search_file,
-            get_files_metdata
+            get_files_metadata
         ])
         .run(tauri::generate_context!())
     .expect("error while running tauri application");
