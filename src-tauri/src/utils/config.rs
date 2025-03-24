@@ -1,7 +1,6 @@
+use lru::LruCache;
 use serde::Deserialize;
-use std::env;
-use std::fs;
-use std::path::PathBuf;
+use std::{ collections::HashMap, env, fs, num::NonZeroUsize, path::PathBuf, sync::{ Arc, Mutex}};
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -29,5 +28,35 @@ impl Config {
             storage_path,
             max_size: max_file_size
         }
+    }
+}
+
+#[derive(Clone)]
+pub struct FileSystemCache {
+    pub cache: Arc<Mutex<LruCache<String, HashMap<String, String>>>>, //String = directroy path, Hash<pa = fileName ->  metadata
+}
+
+impl FileSystemCache {
+    pub fn new(capacity: usize) -> Self {
+        let non_zero_capacity = NonZeroUsize::new(capacity).expect("Cache capacity must be greater than zero");
+        FileSystemCache {
+            cache: Arc::new(Mutex::new(LruCache::new(non_zero_capacity))),
+        }
+        
+    }
+
+    pub fn get(&self, path: &str) -> Option<HashMap<String, String>> {
+        let mut cache = self.cache.lock().unwrap();
+        cache.get(path).cloned() // Clone the HashMap before returning
+    }
+
+    pub fn insert(&self, path: String, metadata: HashMap<String, String>) {
+        let mut cache = self.cache.lock().unwrap();
+        cache.put(path, metadata);
+    }
+
+    pub fn invalidate(&self, path: &str) {
+        let mut cache = self.cache.lock().unwrap();
+        cache.pop(path);
     }
 }

@@ -1,5 +1,8 @@
+use crate::utils::config::FileSystemCache;
+
 use std::{fs::Metadata, path::PathBuf};
 use std::collections::HashMap;
+use tauri::State;
 use tokio::task;
 use serde::{ Deserialize, Serialize };
 use sysinfo::{ Disk, Disks };
@@ -105,17 +108,36 @@ pub async fn search_file(path: String, query: String) -> Result<Vec<PathBuf>, St
 
 // Get the metadata of all the files in the path
 #[tauri::command]
-pub async fn get_files_metadata(path: String) -> Result<HashMap<String, String>, String> {
-    task::spawn_blocking(move || {
+pub async fn get_files_metadata(path: String, state: State<'_, FileSystemCache>) -> Result<HashMap<String, String>, String> {
+    // First we check the cache before we get the new metadata
+    let cache = state.inner();
+    if let Some(chached_data) = cache.get(&path) {
+        println!("Cache hit for path: {}", path);
+        return Ok(chached_data);
+    }
+    // If the cache is empty, we get the new metadata
+    println!("Cache miss for path: {}", path);
+
+    let path_clone = path.clone();
+    let meta_data: Result<HashMap<String, String>, String> = task::spawn_blocking(move || {
         let mut data = HashMap::new();
-        for entry in std::fs::read_dir(&path)
+        for entry in std::fs::read_dir(&path_clone)
             .map_err(|e| e.to_string())?
             .filter_map(Result::ok)
         {
-            data.insert(entry.file_name().to_string_lossy().to_string(), metadata_to_string(&entry.metadata().unwrap()));
+            data.insert(
+                entry.file_name().to_string_lossy().to_string(), 
+                metadata_to_string(&entry.metadata().unwrap())
+            );
         }
+        
         Ok(data)
     })
     .await
-    .map_err(|e| e.to_string())?
+    .map_err(|e| e.to_string())?;
+
+    // Insert the new metadata into the cache
+    cache.insert(path, meta_data.clone()?);
+    Ok(meta_data?)
+
 }
