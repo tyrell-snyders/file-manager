@@ -6,6 +6,7 @@ interface VoluemState {
     currentDirectoryPath: string;
     volumes: Volume[];
     volume: Content[];
+    metadata: { [path: string]: { [filename: string]: string } };
 }
 
 interface Content {
@@ -16,6 +17,7 @@ const initialState: VoluemState = {
     currentDirectoryPath: "",
     volumes: [],
     volume: [],
+    metadata: {},
 }
 
 const volumeSlice = createSlice({
@@ -33,9 +35,12 @@ const volumeSlice = createSlice({
         },
         setVolume: (state, action: PayloadAction<string[]>) => {
             state.volume = action.payload.map((path) => ({ path }));
+        },
+        setMetadata: (state, action: PayloadAction<{[filename: string]: string}>) => {
+            state.metadata[state.currentVolume] = action.payload;
         }
     },
 });
 
-export const { setCurrentVolume, setCurrentDirectoryPath, setVolumes, setVolume } = volumeSlice.actions;
+export const { setCurrentVolume, setCurrentDirectoryPath, setVolumes, setVolume, setMetadata } = volumeSlice.actions;
 export default volumeSlice.reducer;

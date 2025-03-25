@@ -13,6 +13,10 @@ export interface DirectoryContent {
     [key: string]: [string, string]
 }
 
+export interface FileMetadata {
+    [filename: string]: string
+}
+
 export enum ContextMenuType {
     None,
     General,
