@@ -37,17 +37,19 @@ pub struct FileSystemCache {
 }
 
 impl FileSystemCache {
-    pub fn new(capacity: usize) -> Self {
-        let non_zero_capacity = NonZeroUsize::new(capacity).expect("Cache capacity must be greater than zero");
-        FileSystemCache {
+    pub fn new(capacity: usize) -> Result<Self, String> {
+        // Not going to lie I use AI to solve the NonZeroUsize here, because LruCacahe only accepts NonZeroUsize
+        let non_zero_capacity = NonZeroUsize::new(capacity)
+            .ok_or_else(|| "Cache capacity must be greater than zero".to_string())?;
+
+        Ok(FileSystemCache {
             cache: Arc::new(Mutex::new(LruCache::new(non_zero_capacity))),
-        }
-        
+        })
     }
 
     pub fn get(&self, path: &str) -> Option<HashMap<String, String>> {
         let mut cache = self.cache.lock().unwrap();
-        cache.get(path).cloned() // Clone the HashMap before returning
+        cache.get(path).cloned()
     }
 
     pub fn insert(&self, path: String, metadata: HashMap<String, String>) {

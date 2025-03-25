@@ -139,5 +139,4 @@ pub async fn get_files_metadata(path: String, state: State<'_, FileSystemCache>)
     // Insert the new metadata into the cache
     cache.insert(path, meta_data.clone()?);
     Ok(meta_data?)
-
 }
