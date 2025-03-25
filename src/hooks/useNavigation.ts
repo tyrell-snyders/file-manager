@@ -1,22 +1,30 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store/store";
-import { navigateTo, goBack, goForward } from "../state/navigationSlice";
+import { navigateTo, goBack, goForward, setHistoryPlace } from "../state/navigationSlice"; // Corrected import
+import { setCurrentVolume } from '../state/volumeSlice';  // Import setCurrentVolume
 
 export default function useNavigation() {
     const dispatch = useDispatch()
-    const { pathHistory, historyPlace, currentVolume } = useSelector((state: RootState) => state.navigation);
+    const { pathHistory, historyPlace } = useSelector((state: RootState) => state.navigation); // Removed currentVolume
+    const currentVolume = useSelector((state: RootState) => state.volume.currentVolume);
+
 
     const onBackArrowClick = () => {
-        console.log({
-            currentVolume,
-            pathHistory,
-            historyPlace,
-        })
         dispatch(goBack());
+        // After going back, update currentVolume from the history
+        if (historyPlace > 0) {
+            dispatch(setCurrentVolume(pathHistory[historyPlace - 1])); // -1 because historyPlace will be decremented
+        } else {
+             dispatch(setCurrentVolume(""));
+        }
     };
 
     const onForwardArrowClick = () => {
         dispatch(goForward());
+        // After going forward, update currentVolume from the history
+         if (historyPlace < pathHistory.length - 1) {
+              dispatch(setCurrentVolume(pathHistory[historyPlace + 1]));
+         }
     };
 
     const canGoForward = (): boolean => historyPlace < pathHistory.length - 1;
@@ -24,6 +32,12 @@ export default function useNavigation() {
 
     const navigate = (path: string) => {
         dispatch(navigateTo(path));
+        dispatch(setCurrentVolume(path));
+    };
+
+      const goHome = () => {
+        dispatch(setHistoryPlace(0));
+        dispatch(setCurrentVolume(""));
     };
 
     return {
@@ -35,5 +49,6 @@ export default function useNavigation() {
         canGoForward,
         canGoBack,
         navigate,
+        goHome
     }
 }

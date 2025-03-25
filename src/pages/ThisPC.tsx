@@ -7,7 +7,6 @@ import { RootState } from "../state/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { setVolumes } from "../state/volumeSlice";
 
-
 export default function ThisPC() {
     const { navigate } = useNavigation();
 	const volumes: Volume[] = useSelector((state: RootState) => state.volume.volumes)
