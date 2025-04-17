@@ -1,6 +1,8 @@
 use tauri;
 mod commands;
 mod utils;
+mod DB;
+
 use commands::storage::{ get_volumes, list_files, search_file, get_files_metadata };
 use utils::config::FileSystemCache;
 

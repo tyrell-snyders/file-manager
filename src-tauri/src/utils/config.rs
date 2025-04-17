@@ -1,6 +1,9 @@
+use crate::DB::connection;
+
 use lru::LruCache;
 use serde::Deserialize;
-use std::{ collections::HashMap, env, fs, num::NonZeroUsize, path::PathBuf, sync::{ Arc, Mutex}};
+use std::{ collections::HashMap, env, fs, num::NonZeroUsize, path::PathBuf, sync::{ Arc, Mutex } };
+
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -52,7 +55,13 @@ impl FileSystemCache {
         cache.get(path).cloned()
     }
 
+    //TODO: Also implent sqlite to storethe metadata
+    // update the cache and or cache every 1 hour while the application is running
     pub fn insert(&self, path: String, metadata: HashMap<String, String>) {
+        // insert data into sqlite
+        let connection = connection::get_connection().unwrap();
+        connection::insert_cache(path.clone(), metadata.clone(), connection);
+
         let mut cache = self.cache.lock().unwrap();
         cache.put(path, metadata);
     }

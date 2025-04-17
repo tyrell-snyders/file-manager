@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store/store";
-import { navigateTo, goBack, goForward, setHistoryPlace } from "../state/navigationSlice"; // Corrected import
-import { setCurrentVolume } from '../state/volumeSlice';  // Import setCurrentVolume
+import { navigateTo, goBack, goForward, setHistoryPlace } from "../state/navigationSlice";
+import { setCurrentVolume } from '../state/volumeSlice';
 
 export default function useNavigation() {
     const dispatch = useDispatch()
-    const { pathHistory, historyPlace } = useSelector((state: RootState) => state.navigation); // Removed currentVolume
+    const { pathHistory, historyPlace } = useSelector((state: RootState) => state.navigation);
     const currentVolume = useSelector((state: RootState) => state.volume.currentVolume);
 
 
@@ -13,7 +13,7 @@ export default function useNavigation() {
         dispatch(goBack());
         // After going back, update currentVolume from the history
         if (historyPlace > 0) {
-            dispatch(setCurrentVolume(pathHistory[historyPlace - 1])); // -1 because historyPlace will be decremented
+            dispatch(setCurrentVolume(pathHistory[historyPlace - 1]));
         } else {
              dispatch(setCurrentVolume(""));
         }

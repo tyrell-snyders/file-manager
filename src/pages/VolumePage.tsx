@@ -42,17 +42,6 @@ export default function VolumePage() {
     }, [dispatch, currentVolume]);
 
 
-    useEffect(() => {
-        if (currentVolume && metadata[currentVolume]) {
-                console.log("Metadata for current volume:", metadata[currentVolume]);
-
-                Object.entries(metadata[currentVolume]).forEach(([filename, metadataString]) => {
-                console.log(`File: ${filename}, Metadata: ${metadataString}`);
-                });
-            }
-    }, [metadata, currentVolume]);
-
-
     return (
         <div className="">
             <h1>Volume: {currentVolume}</h1>
@@ -66,15 +55,6 @@ export default function VolumePage() {
                         className="m-2 border-2 border-gray-400 p-10 rounded-md"
                     >
                         {v.path}
-                        {currentVolume && metadata[currentVolume] && metadata[currentVolume][v.path.split('/').pop() || ''] && (
-                            <p>
-                                {
-                                    metadata[currentVolume][
-                                        v.path.split('/').pop() || ''
-                                    ]
-                                }
-                            </p>
-                        )}
                     </button>
                 ))}
             </div>
