@@ -4,7 +4,7 @@ This project is a cross-platform file manager application built using Tauri, Rea
 ## Features
 - **Cross Platform Support** - Runs on Windows, macOS, and Linux, ensuring a consistent experience across platforms.
 - **Modern UI**: Utilizes React and Tailwind CSS to deliver a responsive and intuitive user interface.
-- **Performance Optimizations**: Built with Vite and Tauri, offering fast load times and low resource consumption.
+- **Performance Optimizations**: Built with Vite and Tauri **(ReactJs and Rust)**, offering fast load times and low resource consumption.
 
 ## Getting Started
 Follow these instructions to set up and run the project locally.
