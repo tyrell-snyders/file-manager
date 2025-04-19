@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 pub mod utils;
 pub mod commands;
-pub mod DB;
+pub mod db;
 
 fn main() {
     file_manager_lib::run()

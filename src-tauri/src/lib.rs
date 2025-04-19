@@ -1,14 +1,15 @@
 use tauri;
 mod commands;
 mod utils;
-mod DB;
+mod db;
 
 use commands::storage::{ get_volumes, list_files, search_file, get_files_metadata };
-use utils::config::FileSystemCache;
+use utils::{config::FileSystemCache, logger};
 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    logger::init_logger();
     let cache_result = FileSystemCache::new(100);
     match cache_result {
         Ok(cache) => {
@@ -25,7 +26,7 @@ pub fn run() {
             .expect("error while running tauri application");
         }
         Err(err) => {
-            eprintln!("Error creating cache: {}", err);
+            log::error!("Error creating cache: {}", err);
             std::process::exit(1);
         }
     }

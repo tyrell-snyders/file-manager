@@ -100,7 +100,7 @@ pub async fn search_file(path: String, query: String) -> Result<Vec<PathBuf>, St
                 files.push(entry.path().to_path_buf());
             }
         } 
-        println!("{:?}", files);
+        log::info!("{:?}", files);
         Ok(files)
     }).await
     .map_err(|e| e.to_string())?
@@ -112,11 +112,11 @@ pub async fn get_files_metadata(path: String, state: State<'_, FileSystemCache>)
     // First we check the cache before we get the new metadata
     let cache = state.inner();
     if let Some(chached_data) = cache.get(&path) {
-        println!("Cache hit for path: {}", path);
+        log::info!("Cache hit for path: {}", path);
         return Ok(chached_data);
     }
     // If the cache is empty, we get the new metadata
-    println!("Cache miss for path: {}", path);
+    log::info!("Cache miss for path: {}", path);
 
     let path_clone = path.clone();
     let meta_data: Result<HashMap<String, String>, String> = task::spawn_blocking(move || {

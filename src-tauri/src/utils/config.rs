@@ -1,4 +1,4 @@
-use crate::DB::connection;
+use crate::db::db_connection;
 
 use lru::LruCache;
 use serde::Deserialize;
@@ -55,12 +55,25 @@ impl FileSystemCache {
         cache.get(path).cloned()
     }
 
-    //TODO: Also implent sqlite to storethe metadata
-    // update the cache and or cache every 1 hour while the application is running
     pub fn insert(&self, path: String, metadata: HashMap<String, String>) {
-        // insert data into sqlite
-        let connection = connection::get_connection().unwrap();
-        connection::insert_cache(path.clone(), metadata.clone(), connection);
+        // skip certain directories
+        if path.contains("$Recycle.Bin") || path.contains("System Volume Information") {
+            log::info!("Skipping system folder: {}", path);
+            return;
+        }
+
+        let connection = match db_connection::get_connection() {
+            Ok(conn) => conn,
+            Err(e) => {
+                log::error!("DB connection error: {:?}", e);
+                return;
+            }
+        };
+
+        if let Err(e) = db_connection::insert_cache(path.clone(), metadata.clone(), connection) {
+            log::error!("Failed to insert into cache DB for path {}: {:?}", path, e);
+            return;
+        }
 
         let mut cache = self.cache.lock().unwrap();
         cache.put(path, metadata);
