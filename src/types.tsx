@@ -17,6 +17,12 @@ export interface FileMetadata {
     [filename: string]: string
 }
 
+export interface FileInfo {
+    name: string;
+    type: 'file' | 'directory' | 'symlink' | 'unkwown';
+    size: number;
+}
+
 export enum ContextMenuType {
     None,
     General,
