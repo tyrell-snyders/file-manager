@@ -2,7 +2,14 @@ use crate::db::db_connection;
 
 use lru::LruCache;
 use serde::Deserialize;
-use std::{ collections::HashMap, env, fs, num::NonZeroUsize, path::PathBuf, sync::{ Arc, Mutex } };
+use std::{
+    collections::HashMap,
+    env,
+    fs,
+    num::NonZeroUsize,
+    path::PathBuf,
+    sync::{Arc, Mutex},
+};
 
 
 #[derive(Debug, Deserialize)]
@@ -14,7 +21,7 @@ pub struct Config {
 impl Config {
     pub fn new() -> Self {
         let storage_path = env::var("STORAGE_PATH")
-            .map(PathBuf::from) // Convert String -> PathBuf
+            .map(PathBuf::from)
             .unwrap_or_else(|_| PathBuf::from("./storage"));
 
         let max_file_size = env::var("MAX_FILE_SIZE")
@@ -22,26 +29,24 @@ impl Config {
             .parse::<u64>()
             .expect("MAX FILE SIZE must be a valid number");
 
-        // Enough storage directories
-        if storage_path.exists()  {
+        if !storage_path.exists() {
             fs::create_dir(&storage_path).expect("Failed to create storage directory");
         }
 
         Config {
             storage_path,
-            max_size: max_file_size
+            max_size: max_file_size,
         }
     }
 }
 
 #[derive(Clone)]
 pub struct FileSystemCache {
-    pub cache: Arc<Mutex<LruCache<String, HashMap<String, String>>>>, //String = directroy path, Hash<pa = fileName ->  metadata
+    pub cache: Arc<Mutex<LruCache<String, HashMap<String, String>>>>,
 }
 
 impl FileSystemCache {
     pub fn new(capacity: usize) -> Result<Self, String> {
-        // Not going to lie I use AI to solve the NonZeroUsize here, because LruCacahe only accepts NonZeroUsize
         let non_zero_capacity = NonZeroUsize::new(capacity)
             .ok_or_else(|| "Cache capacity must be greater than zero".to_string())?;
 
@@ -56,31 +61,22 @@ impl FileSystemCache {
     }
 
     pub fn insert(&self, path: String, metadata: HashMap<String, String>) {
-        // skip certain directories
         if path.contains("$Recycle.Bin") || path.contains("System Volume Information") {
-            log::info!("Skipping system folder: {}", path);
             return;
         }
 
-        let connection = match db_connection::get_connection() {
-            Ok(conn) => conn,
-            Err(e) => {
-                log::error!("DB connection error: {:?}", e);
-                return;
-            }
-        };
+        // let metadata_clone = metadata.clone();
+        // let path_clone = path.clone();
 
-        if let Err(e) = db_connection::insert_cache(path.clone(), metadata.clone(), connection) {
-            log::error!("Failed to insert into cache DB for path {}: {:?}", path, e);
-            return;
-        }
+        // tauri::async_runtime::spawn(async move {
+        //     match db_connection::insert_cache(path_clone, metadata_clone) {
+        //         Ok(_) => {},
+        //         Err(e) => log::error!("DB insert error: {}", e),
+        //     }
+        // });
 
         let mut cache = self.cache.lock().unwrap();
         cache.put(path, metadata);
     }
 
-    pub fn invalidate(&self, path: &str) {
-        let mut cache = self.cache.lock().unwrap();
-        cache.pop(path);
-    }
 }

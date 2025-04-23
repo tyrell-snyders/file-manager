@@ -1,15 +1,17 @@
+#[macro_use]
+extern crate lazy_static;
+
 use tauri;
 mod commands;
 mod utils;
 mod db;
 
 use commands::storage::{ get_volumes, list_files, search_file, get_files_metadata };
-use utils::{config::FileSystemCache, logger};
+use utils::config::FileSystemCache;
 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    logger::init_logger();
     let cache_result = FileSystemCache::new(100);
     match cache_result {
         Ok(cache) => {
@@ -21,9 +23,19 @@ pub fn run() {
                     list_files, 
                     search_file,
                     get_files_metadata
-                ])
-                .run(tauri::generate_context!())
-            .expect("error while running tauri application");
+                ]).build(tauri::generate_context!())
+                .expect("error while building tauri application")
+                .run(|app_handle, event| {
+                    match event {
+                        tauri::RunEvent::Ready => {
+                            log::info!("Application Started");
+                        }
+                        tauri::RunEvent::MainEventsCleared => {
+                            
+                        }
+                        _ => {}
+                    }
+                });  
         }
         Err(err) => {
             log::error!("Error creating cache: {}", err);

@@ -7,7 +7,7 @@ pub fn init_logger() -> Result<(), SetLoggerError> {
         .create(true)
         .append(true)
         .open("app.log")
-        .expect("Failed to open log file");
+    .expect("Failed to open log file");
     
     CombinedLogger::init(vec![
         TermLogger::new(

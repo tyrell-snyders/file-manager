@@ -2,7 +2,7 @@ use crate::utils::config::FileSystemCache;
 
 use std::{ fs::Metadata, path::PathBuf };
 use std::collections::HashMap;
-use tauri::State;
+use tauri::{Emitter, State};
 use tokio::task;
 use serde::{ Deserialize, Serialize };
 use sysinfo::{ Disk, Disks };
@@ -14,33 +14,29 @@ use super::bytes_to_gb;
 pub struct Volume {
     pub name: String, 
     pub mountpoint: PathBuf,
-    pub available_gb: u16,
-    pub used_gb: u16,
-    pub total_gb: u16,
+    pub available_gb: f64, // Changed to f64 for precision
+    pub used_gb: f64,      // Changed to f64 for precision
+    pub total_gb: f64,     // Changed to f64 for precision
 }
 
 impl Volume {
     pub fn from(disk: &Disk) -> Self {
-        let used_bytes = disk.total_space() - disk.available_space();
-        let available_gb = bytes_to_gb(disk.available_space());
-        let used_gb  = bytes_to_gb(used_bytes);
-        let total_gb = bytes_to_gb(disk.total_space());
+        let total_bytes_u64 = disk.total_space();
+        let available_bytes_u64 = disk.available_space();
+        let used_bytes_u64 = total_bytes_u64.saturating_sub(available_bytes_u64);
 
-        let name = {
-            let volume_name = disk.name().to_str().unwrap();
-            match volume_name.is_empty() {
-                true => "Local Volume",
-                false => &volume_name
-            }.to_string()
-        };
+        
+        let total_gb = bytes_to_gb(total_bytes_u64);
+        let available_gb = bytes_to_gb(available_bytes_u64);
+        let used_gb = bytes_to_gb(used_bytes_u64);
 
-        let mountpoint = disk.mount_point().to_path_buf();
-        Self {
-            name,
+
+        Volume {
+            name: disk.name().to_str().unwrap_or("Local Volume").to_string(),
+            mountpoint: disk.mount_point().to_path_buf(),
             available_gb,
             used_gb,
-            total_gb,
-            mountpoint
+            total_gb
         }
     }
 }
@@ -108,7 +104,7 @@ pub async fn search_file(path: String, query: String) -> Result<Vec<PathBuf>, St
 
 // Get the metadata of all the files in the path
 #[tauri::command]
-pub async fn get_files_metadata(path: String, state: State<'_, FileSystemCache>) -> Result<HashMap<String, String>, String> {
+pub async fn get_files_metadata(path: String, state: State<'_, FileSystemCache>, app_handle: tauri::AppHandle) -> Result<HashMap<String, String>, String> {
     // First we check the cache before we get the new metadata
     let cache = state.inner();
     if let Some(chached_data) = cache.get(&path) {
@@ -121,22 +117,53 @@ pub async fn get_files_metadata(path: String, state: State<'_, FileSystemCache>)
     let path_clone = path.clone();
     let meta_data: Result<HashMap<String, String>, String> = task::spawn_blocking(move || {
         let mut data = HashMap::new();
-        for entry in std::fs::read_dir(&path_clone)
-            .map_err(|e| e.to_string())?
-            .filter_map(Result::ok)
-        {
-            data.insert(
-                entry.file_name().to_string_lossy().to_string(), 
-                metadata_to_string(&entry.metadata().unwrap())
-            );
+        let entries = std::fs::read_dir(&path_clone)
+            .map_err(
+                |e| format!("Failed to read directory '{}': {}", path_clone, e)
+            )?;
+
+        for entry_result in entries {
+            match entry_result {
+                Ok(entry) => {
+                    match entry.metadata() {
+                        Ok(metadata) => {
+                            // Successfully got metadata
+                            data.insert(
+                                entry.file_name().to_string_lossy().to_string(),
+                                metadata_to_string(&metadata) // Use the Ok value
+                            );
+                        }
+                        Err(e) => {
+                            // Failed to get metadata for this specific entry
+                            log::warn!("Failed to get metadata for file/dir {:?} in '{}': {}", entry.path(), path_clone, e);
+                            data.insert(
+                                entry.file_name().to_string_lossy().to_string(),
+                                format!("Error: {}", e) // Indicate error in value
+                            );
+                        }
+                    }
+                }
+                Err(e) => {
+                    log::warn!("Failed to process directory entry in '{}': {}", path_clone, e);
+                }
+            }
         }
-        
         Ok(data)
     })
     .await
     .map_err(|e| e.to_string())?;
 
     // Insert the new metadata into the cache
-    cache.insert(path, meta_data.clone()?);
+    for retry in 0..3 {
+        state.inner().insert(path.clone(), meta_data.clone().unwrap());
+        if let Some(cached) = state.inner().get(&path) {
+            if cached == meta_data.clone().unwrap() {
+                break;
+            }
+        }
+        tokio::time::sleep(tokio::time::Duration::from_millis(100 * (retry + 1))).await;
+    }
+    //Emit an event to the frontend to update the UI
+    app_handle.emit("cache-updated", path).unwrap();
     Ok(meta_data?)
 }

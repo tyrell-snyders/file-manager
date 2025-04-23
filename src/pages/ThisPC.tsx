@@ -13,7 +13,6 @@ export default function ThisPC() {
 	const dispatch = useDispatch();
 
     useEffect(() => {
-
         const fetchVolumes = async () => {
             try {
                 const loadVolumes = await get_volumes();
