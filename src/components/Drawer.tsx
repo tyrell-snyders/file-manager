@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-
 export default function Drawer(
     props: {
         children: React.ReactNode;
@@ -24,9 +23,11 @@ export default function Drawer(
     };
 
     return (
-        <div className={`fixed inset-0 z-50 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"} ${isTransitioning ? "opacity-0" : "opacity-100"}`}>
-            <div className="bg-gray-800 bg-opacity-75 absolute inset-0" onClick={handleClose}></div>
-            <div className="bg-white w-64 h-full shadow-lg p-4 relative z-10">
+        <div className={`fixed inset-0 z-50 transition-transform duration-300 
+            ${isOpen ? "translate-x-0" : "-translate-x-full"} ${isTransitioning ? "opacity-0" : "opacity-100"}`}
+        >
+            <div className="bg-transparent bg-opacity-75 absolute inset-0" onClick={handleClose}></div>
+            <div className="bg-white w-64 h-full shadow-lg p-4 relative z-10 text-gray-500">
                 <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700" onClick={handleClose}>
                     &times;
                 </button>
