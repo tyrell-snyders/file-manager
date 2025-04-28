@@ -11,37 +11,10 @@ import { FileMetadata, FileInfo } from "../types";
 // import { event } from "@tauri-apps/api";
 import Drawer from "../components/Drawer";
 
-interface FileMtd {
-    [path: string]: FileMetadata
+interface FileMeta {
+    [filename: string]: string
 }
 
-const parseMetadata = (metadata: FileMtd): FileInfo[] => {
-    let data = Object.entries(metadata || {}).map(([_, mtd]) => {
-        return Object.entries(mtd).map(([fileName, metaStr]) => {
-            // Extract the file type
-            const isFile = metaStr.startsWith("is_file: true");
-            const isDirectory = metaStr.startsWith("is_dir: true");
-            const isSymlink = metaStr.startsWith("is_symlink: true");
-
-            // Extract the file size
-            const sizeMatch = metaStr.match(/len: (\d+)/);
-            const size = sizeMatch ? parseInt(sizeMatch[1], 10) : 0;
-
-            const type = isFile ? 'file' as const
-                : isDirectory ? 'directory' as const
-                : isSymlink ? 'symlink' as const
-                : 'unkwown' as const;
-
-            return {
-                name: fileName,
-                type,
-                size
-            }
-        })
-    }).flat();
-
-    return data;
-}
 
 export default function VolumePage() {
     const { onBackArrowClick } = useNavigation();
@@ -105,7 +78,6 @@ export default function VolumePage() {
         }
     }, [currentVolume]);
 
-    let files = parseMetadata(metadata);
     useEffect(() => {
         console.log(metadata);
     }, [metadata]);
@@ -114,7 +86,15 @@ export default function VolumePage() {
     const closeDrawer = () => {
         setIsDrawerOpen(false);
         dispatch(setMetadata({}));
-        files = []
+    }
+
+    const handleFiles = (files: FileMeta) => {
+        return Object.keys(files).map((key) => {
+            return {
+                name: key,
+                size: files[key]
+            }
+        });
     }
 
     return (
@@ -143,11 +123,15 @@ export default function VolumePage() {
                             <h2 className="text-lg font-semibold mb-2">Metadata</h2>
                             <ul className="list-disc pl-6">
                                 {Object.entries(metadata).map(([vol]) => {
-                                    if (vol === currentVolume) return (
-                                        <li key={vol} className="mb-2">
-                                            <strong>{vol}</strong>
-                                        </li> 
-                                    );
+                                    const fileMeta: FileMeta = metadata[vol];
+                                    const fileList = handleFiles(fileMeta); 
+                                    if (vol === currentVolume) {
+                                        return fileList.map((file, index) => (
+                                            <li key={index} className="mb-2">
+                                                <span className="font-semibold">{file.name}</span>
+                                            </li>
+                                        ));
+                                    };
                                 })} 
                             </ul>
                         </div>
