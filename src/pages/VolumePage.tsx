@@ -42,6 +42,7 @@ const parseMetadata = (metadata: FileMtd): FileInfo[] => {
 
     return data;
 }
+
 export default function VolumePage() {
     const { onBackArrowClick } = useNavigation();
     const dispatch = useDispatch();
@@ -56,9 +57,9 @@ export default function VolumePage() {
         setError("");
         setLoading(true);
         try {
-            const vol = await list_files(currentVolume);
+            const vol = await list_files(volumePath);
             dispatch(setVolume(vol))
-            const metadata: FileMetadata = await get_metadata(currentVolume);
+            const metadata: FileMetadata = await get_metadata(volumePath);
             dispatch(setMetadata(metadata))
         } catch (err) {
             console.log(err);
@@ -79,6 +80,8 @@ export default function VolumePage() {
             dispatch(setMetadata({}));
         }
     }, [currentVolume, dispatch]);
+
+ 
 
     useEffect(() => {
         let isSubscribed = true;
@@ -102,10 +105,17 @@ export default function VolumePage() {
         }
     }, [currentVolume]);
 
-    const openDrawer = () => setIsDrawerOpen(true);
-    const closeDrawer = () => setIsDrawerOpen(false);
+    let files = parseMetadata(metadata);
+    useEffect(() => {
+        console.log(metadata);
+    }, [metadata]);
 
-    const files = parseMetadata(metadata);
+    const openDrawer = () => setIsDrawerOpen(true);
+    const closeDrawer = () => {
+        setIsDrawerOpen(false);
+        dispatch(setMetadata({}));
+        files = []
+    }
 
     return (
         <div className="flex flex-col h-screen">
@@ -132,11 +142,13 @@ export default function VolumePage() {
                         <div className="p-4">
                             <h2 className="text-lg font-semibold mb-2">Metadata</h2>
                             <ul className="list-disc pl-6">
-                                {Object.entries(metadata).map(([vol]) =>(
-                                    <li key={vol} className="mb-2">
-                                        <strong>{vol}</strong>
-                                    </li> 
-                                ))} 
+                                {Object.entries(metadata).map(([vol]) => {
+                                    if (vol === currentVolume) return (
+                                        <li key={vol} className="mb-2">
+                                            <strong>{vol}</strong>
+                                        </li> 
+                                    );
+                                })} 
                             </ul>
                         </div>
                     ): (

@@ -82,7 +82,7 @@ pub async fn list_files(path: String) -> Result<Vec<PathBuf>, String> {
     .map_err(|e| e.to_string())?
 }
 
-// Formats the Metadata as a string
+/// Formats the Metadata as a string
 fn metadata_to_string(metadata: &Metadata) -> String {
     format!("{:?}", metadata)
 }
@@ -102,7 +102,7 @@ pub async fn search_file(path: String, query: String) -> Result<Vec<PathBuf>, St
     .map_err(|e| e.to_string())?
 }
 
-// Get the metadata of all the files in the path
+/// Get the metadata of all the files in the path
 #[tauri::command]
 pub async fn get_files_metadata(path: String, state: State<'_, FileSystemCache>, app_handle: tauri::AppHandle) -> Result<HashMap<String, String>, String> {
     // First we check the cache before we get the new metadata
@@ -127,7 +127,6 @@ pub async fn get_files_metadata(path: String, state: State<'_, FileSystemCache>,
                 Ok(entry) => {
                     match entry.metadata() {
                         Ok(metadata) => {
-                            // Successfully got metadata
                             data.insert(
                                 entry.file_name().to_string_lossy().to_string(),
                                 metadata_to_string(&metadata) // Use the Ok value
@@ -138,7 +137,7 @@ pub async fn get_files_metadata(path: String, state: State<'_, FileSystemCache>,
                             log::warn!("Failed to get metadata for file/dir {:?} in '{}': {}", entry.path(), path_clone, e);
                             data.insert(
                                 entry.file_name().to_string_lossy().to_string(),
-                                format!("Error: {}", e) // Indicate error in value
+                                format!("Error: {}", e)
                             );
                         }
                     }

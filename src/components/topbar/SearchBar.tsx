@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchResults, setError } from "../../state/searchSlice";
-import { invoke } from "@tauri-apps/api/core";
 import Input, { InputSize } from "../Input";
 import useNavigation from "../../hooks/useNavigation";
-import { RootState } from "../../state/store/store";
+import { RootState } from "../../state/store/store";1
+import { search_files } from "../../IPC/IPCRequests";
 
 interface Props {
     currentVolume: string;
@@ -36,6 +36,7 @@ export default function SearchBar({
     const { navigate } = useNavigation();
     const searchResult = useSelector((state: RootState) => state.search.searchResults);
 
+
     useEffect(() => {
         const split = currentDirectoryPath.split("\\");
         setCurrentPlace(split[split.length - 2]);
@@ -49,11 +50,8 @@ export default function SearchBar({
 
         try {
             setLoading(true);
-            const res: string[] = await invoke("search_file", {
-                path: currentVolume,
-                query: searchValue
-            });
-
+            const res = await search_files(currentVolume, searchValue);
+            console.log("searchResult", res)
             if (res.length > 0) {
                 dispatch(setSearchResults(res));
                 setError("");
@@ -77,7 +75,7 @@ export default function SearchBar({
             <Input 
                 value={searchValue}
                 setValue={setSearchValue}
-                placeholder={`Search ${currentPlace} || "PC"`}
+                placeholder={`Search ${currentVolume} || "PC"`}
                 className="rounded-bl-none rounded-br-none"
                 onSubmit={onSearch}
                 size={InputSize.Large}

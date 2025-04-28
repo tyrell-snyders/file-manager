@@ -7,3 +7,5 @@ export const list_files = async (volumePath: string) =>
     await invoke<string[]>("list_files", { path: volumePath });
 export const get_metadata = async (volumePath: string) =>
     await invoke<FileMetadata>("get_files_metadata", { path: volumePath });
+export const search_files = async (path: string, query: string) =>
+    await invoke<string[]>("search_file", { path, query });

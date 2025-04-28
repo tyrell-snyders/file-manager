@@ -31,7 +31,8 @@ pub fn run() {
                             log::info!("Application Started");
                         }
                         tauri::RunEvent::MainEventsCleared => {
-                            
+                            log::info!("Main Events Cleared");
+                           
                         }
                         _ => {}
                     }
