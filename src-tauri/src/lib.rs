@@ -6,7 +6,7 @@ mod commands;
 mod utils;
 mod db;
 
-use commands::storage::{ get_volumes, list_files, search_file, get_files_metadata };
+use commands::{ storage::{ get_volumes, list_files, search_file, get_files_metadata }, file::get_metadata};
 use utils::config::FileSystemCache;
 
 
@@ -22,10 +22,11 @@ pub fn run() {
                     get_volumes, 
                     list_files, 
                     search_file,
-                    get_files_metadata
+                    get_files_metadata,
+                    get_metadata
                 ]).build(tauri::generate_context!())
                 .expect("error while building tauri application")
-                .run(|app_handle, event| {
+                .run(|_app_handle, event| {
                     match event {
                         tauri::RunEvent::Ready => {
                             log::info!("Application Started");
