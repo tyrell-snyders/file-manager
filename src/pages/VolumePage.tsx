@@ -5,7 +5,7 @@ import ErrorPlaceholder from "../components/ErrorPlaceholder";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store/store";
 import { listen } from "@tauri-apps/api/event";
-import { get_metadata, list_files } from "../IPC/IPCRequests";
+import { get_metadata, list_files, get_mtd } from "../IPC/IPCRequests";
 import { setVolume, setMetadata } from "../state/volumeSlice";
 import { FileMetadata, FileInfo } from "../types";
 // import { event } from "@tauri-apps/api";
@@ -21,6 +21,7 @@ export default function VolumePage() {
     const dispatch = useDispatch();
     const currentVolume = useSelector((state: RootState) => state.volume.currentVolume);
     const metadata = useSelector((state: RootState) => state.volume.metadata);
+    const [mData, setMData] = useState("")
     const volume = useSelector((state: RootState) => state.volume.volume);
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(true);
@@ -97,6 +98,10 @@ export default function VolumePage() {
         });
     }
 
+    useEffect(() => {
+        console.log(mData);
+    }, [mData])
+
     return (
         <div className="flex flex-col h-screen">
             <div className="flex-grow">
@@ -109,7 +114,12 @@ export default function VolumePage() {
                         <button
                             key={i}
                             className="m-2 border-2 border-gray-400 p-10 rounded-md"
-                            onClick={openDrawer}
+                            onClick={() => {
+                                openDrawer();
+                                get_mtd(currentVolume, v.path.slice(0, 1)).then(data => {
+                                    setMData(data);
+                                });
+                            }}
                         >
                             {v.path}
                         </button>

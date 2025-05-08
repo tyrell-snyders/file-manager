@@ -84,7 +84,15 @@ impl From<std::io::Error> for MetadataError {
 
 pub async fn get_metadata(path: String, filename: String) -> std::result::Result<String, MetadataError> {
     let file = search_file(path.clone(), filename.clone()).await.unwrap();
+    log::info!("File: {:?}", file);
+    if file.is_empty() {
+        log::error!("File not found: {}", filename);
+        return Err(MetadataError::UnexpectedError(format!("File not found: {}", filename)));
+    }
+
     let file_path = file.get(0).unwrap();
+
+    log::info!("File path: {:?}", file_path);
 
     let file_metadata = metadata(file_path).unwrap();
     // let file_type = file_metadata.file_type();
@@ -120,6 +128,8 @@ pub async fn get_metadata(path: String, filename: String) -> std::result::Result
 
         Ok(serde_json::to_string(&dir).unwrap())
     }).await.unwrap();
+
+    log::info!("Result: {:?}", result);
 
     result
 }
