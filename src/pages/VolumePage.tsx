@@ -116,12 +116,12 @@ export default function VolumePage() {
                             className="m-2 border-2 border-gray-400 p-10 rounded-md"
                             onClick={() => {
                                 openDrawer();
-                                get_mtd(currentVolume, v.path.slice(0, 1)).then(data => {
+                                get_mtd(currentVolume, v.path.slice(3)).then(data => {
                                     setMData(data);
                                 });
                             }}
                         >
-                            {v.path}
+                            {v.path.slice(3)} <br />
                         </button>
                     ))}
                 </div>
