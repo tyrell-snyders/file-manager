@@ -9,12 +9,15 @@ export interface Volume {
 export type DirectoryEntityType = "file" | "directory"
 export type DirectoryContentType = "File" | "Directory"
 
-
-
 export enum ContextMenuType {
     None,
     General,
     DirectoryEntity
+}
+
+export interface SystemTime {
+    secs_since_epoch: number;
+    nanos_since_epoch: number;
 }
 
 export interface Mtd {
@@ -25,6 +28,6 @@ export interface Mtd {
     file_type: string,
     is_dir: boolean,
     path: String,
-    created_at: Date,
-    modified_at: Date
+    created_at: SystemTime,
+    modified_at: SystemTime
 }

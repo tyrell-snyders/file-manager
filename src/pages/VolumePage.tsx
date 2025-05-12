@@ -85,10 +85,9 @@ export default function VolumePage() {
     useEffect(() => {
         if (mData) {
             dispatch(setMetadata(handleMtd(mData)));
-            console.log("Metadata: ", handleMtd(mData).created_at);
+            console.log("Metadata: ", metadata.created_at);
         }
     }, [mData])
-
 
     return (
         <div className="flex flex-col h-screen">
@@ -121,6 +120,7 @@ export default function VolumePage() {
                             <h2>{metadata.name}</h2>
                             <h4>Path: {metadata.path}</h4>
                             <h5>Size: {Utils.formatBytes(metadata.size)}</h5>
+                            {/* <h5>Created at: {Utils.formatDate(metadata.created_at)}</h5> */}
                         </div>
                     )}
                 </Drawer>
