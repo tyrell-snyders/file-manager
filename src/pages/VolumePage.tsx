@@ -5,9 +5,9 @@ import ErrorPlaceholder from "../components/ErrorPlaceholder";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store/store";
 import { listen } from "@tauri-apps/api/event";
-import { get_metadata, list_files, get_mtd } from "../IPC/IPCRequests";
+import { list_files, get_mtd } from "../IPC/IPCRequests";
 import { setVolume, setMetadata } from "../state/volumeSlice";
-import { FileMetadata, Mtd } from "../types";
+import { Mtd } from "../types";
 // import { event } from "@tauri-apps/api";
 import Drawer from "../components/Drawer";
 import Utils from "../utils/utils";
@@ -119,8 +119,8 @@ export default function VolumePage() {
                     {metadata  && (
                         <div>
                             <h2>{metadata.name}</h2>
-                            <p>{metadata.is_dir}</p>
-                            
+                            <h4>Path: {metadata.path}</h4>
+                            <h5>Size: {Utils.formatBytes(metadata.size)}</h5>
                         </div>
                     )}
                 </Drawer>

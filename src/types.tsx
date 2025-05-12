@@ -9,19 +9,7 @@ export interface Volume {
 export type DirectoryEntityType = "file" | "directory"
 export type DirectoryContentType = "File" | "Directory"
 
-export interface DirectoryContent {
-    [key: string]: [string, string]
-}
 
-export interface FileMetadata {
-    [filename: string]: string
-}
-
-export interface FileInfo {
-    name: string;
-    type: 'file' | 'directory' | 'symlink' | 'unkwown';
-    size: number;
-}
 
 export enum ContextMenuType {
     None,
