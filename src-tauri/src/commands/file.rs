@@ -95,21 +95,6 @@ pub async fn get_metadata(path: String, filename: String) -> std::result::Result
     log::info!("File path: {:?}", file_path);
 
     let file_metadata = metadata(file_path).unwrap();
-    // let file_type = file_metadata.file_type();
-    // let created_at = file_metadata.created().unwrap_or(SystemTime::now());
-    // let modified_at = file_metadata.modified().unwrap_or(SystemTime::now());
-
-    // let mtd = Mtd::new(
-    //     filename, 
-    //     file_metadata.len(), 
-    //     file_type.is_file(), 
-    //     file_type.is_symlink(), 
-    //     file_type, 
-    //     file_type.is_dir(), 
-    //     path.clone(), 
-    //     created_at, 
-    //     modified_at
-    // );
     let mut dir = vec![];
     let file_path_clone = file_path.clone();
     let result = task::spawn_blocking(move || {

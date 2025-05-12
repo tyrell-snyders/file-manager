@@ -84,10 +84,7 @@ export default function VolumePage() {
     }, [metadata]);
 
     const openDrawer = () => setIsDrawerOpen(true);
-    const closeDrawer = () => {
-        setIsDrawerOpen(false);
-        dispatch(setMetadata({}));
-    }
+    const closeDrawer = () => setIsDrawerOpen(false);
 
     const handleFiles = (files: FileMeta) => {
         return Object.keys(files).map((key) => {
