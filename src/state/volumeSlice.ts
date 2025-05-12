@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Volume } from "../types";
+import { Mtd, Volume } from "../types";
 
 interface VoluemState {
     currentVolume: string;
     currentDirectoryPath: string;
     volumes: Volume[];
     volume: Content[];
-    metadata: { [path: string]: { [filename: string]: string } };
+    metadata: Mtd;
 }
 
 interface Content {
@@ -17,9 +17,8 @@ const initialState: VoluemState = {
     currentDirectoryPath: "",
     volumes: [],
     volume: [],
-    metadata: {},
+    metadata: {} as Mtd,
 }
-
 const volumeSlice = createSlice({
     name: "volume",
     initialState,
@@ -36,8 +35,8 @@ const volumeSlice = createSlice({
         setVolume: (state, action: PayloadAction<string[]>) => {
             state.volume = action.payload.map((path) => ({ path }));
         },
-        setMetadata: (state, action: PayloadAction<{[filename: string]: string}>) => {
-            state.metadata[state.currentVolume] = action.payload;
+        setMetadata: (state, action: PayloadAction<Mtd>) => {
+            state.metadata = action.payload;
         }
     },
 });

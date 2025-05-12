@@ -84,7 +84,6 @@ impl From<std::io::Error> for MetadataError {
 
 pub async fn get_metadata(path: String, filename: String) -> std::result::Result<String, MetadataError> {
     let file = search_file(path.clone(), filename.clone()).await.unwrap();
-    log::info!("File: {:?}", file);
     if file.is_empty() {
         log::error!("File not found: {}", filename);
         return Err(MetadataError::UnexpectedError(format!("File not found: {}", filename)));
@@ -94,27 +93,28 @@ pub async fn get_metadata(path: String, filename: String) -> std::result::Result
 
     log::info!("File path: {:?}", file_path);
 
-    let file_metadata = metadata(file_path).unwrap();
-    let mut dir = vec![];
-    let file_path_clone = file_path.clone();
-    let result = task::spawn_blocking(move || {
-        let file_type = file_metadata.file_type();
-        if file_type.is_dir() {
-            for entry in std::fs::read_dir(path.clone()).unwrap() {
-                let entry = entry.unwrap();
-                let path = entry.path();
-                let metadata = Mtd::from_path(path).unwrap();
-                dir.push(metadata.to_json());
-            }
-        } else {
-            let metadata = Mtd::from_path(file_path_clone).unwrap();
-            dir.push(metadata.to_json());
-        }
+    // let file_metadata = metadata(file_path).unwrap();
+    let result = Mtd::from_path(file_path.clone()).unwrap().to_json();
+    log::info!("Result: {}", result);
+    // log::info!("File metadata: {:?}", file_metadata);
+    // let mut dir = vec![];
+    // let file_path_clone = file_path.clone();
+    // let result = task::spawn_blocking(move || {
+    //     let file_type = file_metadata.file_type();
+    //     if file_type.is_dir() {
+    //         for entry in std::fs::read_dir(path.clone()).unwrap() {
+    //             let entry = entry.unwrap();
+    //             let path = entry.path();
+    //             let metadata = Mtd::from_path(path).unwrap();
+    //             dir.push(metadata.to_json());
+    //         }
+    //     } else {
+    //         let metadata = Mtd::from_path(file_path_clone).unwrap();
+    //         dir.push(metadata.to_json());
+    //     }
 
-        Ok(serde_json::to_string(&dir).unwrap())
-    }).await.unwrap();
+    //     Ok(serde_json::to_string(&dir).unwrap())
+    // }).await.unwrap();
 
-    log::info!("Result: {:?}", result);
-
-    result
+    Ok(result)
 }

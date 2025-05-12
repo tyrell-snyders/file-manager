@@ -28,3 +28,15 @@ export enum ContextMenuType {
     General,
     DirectoryEntity
 }
+
+export interface Mtd {
+    name: String,
+    size: number,
+    is_file: boolean,
+    is_symlink: boolean,
+    file_type: string,
+    is_dir: boolean,
+    path: String,
+    created_at: Date,
+    modified_at: Date
+}

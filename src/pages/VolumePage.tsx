@@ -7,13 +7,10 @@ import { RootState } from "../state/store/store";
 import { listen } from "@tauri-apps/api/event";
 import { get_metadata, list_files, get_mtd } from "../IPC/IPCRequests";
 import { setVolume, setMetadata } from "../state/volumeSlice";
-import { FileMetadata, FileInfo } from "../types";
+import { FileMetadata, Mtd } from "../types";
 // import { event } from "@tauri-apps/api";
 import Drawer from "../components/Drawer";
-
-interface FileMeta {
-    [filename: string]: string
-}
+import Utils from "../utils/utils";
 
 
 export default function VolumePage() {
@@ -33,7 +30,6 @@ export default function VolumePage() {
         try {
             const vol = await list_files(volumePath);
             dispatch(setVolume(vol))
-            const metadata: FileMetadata = await get_metadata(volumePath);
             dispatch(setMetadata(metadata))
         } catch (err) {
             console.log(err);
@@ -51,7 +47,7 @@ export default function VolumePage() {
             setLoading(false);
             setError("No volume selected.");
             dispatch(setVolume([]));
-            dispatch(setMetadata({}));
+            dispatch(setMetadata({} as Mtd));
         }
     }, [currentVolume, dispatch]);
 
@@ -79,25 +75,20 @@ export default function VolumePage() {
         }
     }, [currentVolume]);
 
-    useEffect(() => {
-        console.log(metadata);
-    }, [metadata]);
-
     const openDrawer = () => setIsDrawerOpen(true);
     const closeDrawer = () => setIsDrawerOpen(false);
 
-    const handleFiles = (files: FileMeta) => {
-        return Object.keys(files).map((key) => {
-            return {
-                name: key,
-                size: files[key]
-            }
-        });
+    const handleMtd = (mtd: string) => {
+        return Utils.fromString(mtd);
     }
 
     useEffect(() => {
-        console.log(mData);
+        if (mData) {
+            dispatch(setMetadata(handleMtd(mData)));
+            console.log("Metadata: ", handleMtd(mData).created_at);
+        }
     }, [mData])
+
 
     return (
         <div className="flex flex-col h-screen">
@@ -125,39 +116,16 @@ export default function VolumePage() {
             </div>
             <div className="flex-shrink-0">
                 <Drawer isOpen={isDrawerOpen} onClose={closeDrawer}>
-                    {metadata && Object.keys(metadata).length > 0 ? (
-                        <div className="p-4">
-                            <h2 className="text-lg font-semibold mb-2">Metadata</h2>
-                            <ul className="list-disc pl-6">
-                                {Object.entries(metadata).map(([vol]) => {
-                                    const fileMeta: FileMeta = metadata[vol];
-                                    const fileList = handleFiles(fileMeta); 
-                                    if (vol === currentVolume) {
-                                        return fileList.map((file, index) => (
-                                            <li key={index} className="mb-2">
-                                                <span className="font-semibold">{file.name}</span>
-                                            </li>
-                                        ));
-                                    };
-                                })} 
-                            </ul>
+                    {metadata  && (
+                        <div>
+                            <h2>{metadata.name}</h2>
+                            <p>{metadata.is_dir}</p>
+                            
                         </div>
-                    ): (
-                        <div className="flex flex-col items-center justify-center h-full">
-                            <h2 className="text-lg font-semibold">No metadata available</h2>
-                            <p className="text-gray-500">Please select a volume to view its metadata.</p>
-                        </div>
-                    )}  
+                    )}
                 </Drawer>
             </div>
         </div>
     );
 }
 
-const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-}
