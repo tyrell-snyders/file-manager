@@ -11,9 +11,8 @@ import { useEffect } from "react";
 function App() {
     const { goHome } = useNavigation();
     const currentVolume = useSelector((state: RootState) => state.volume.currentVolume);
-    const currentDirectoryPath = useSelector((state: RootState) => state.volume.currentDirectoryPath);
+    // const currentDirectoryPath = useSelector((state: RootState) => state.volume.currentDirectoryPath);
     const historyPlace = useSelector((state: RootState) => state.navigation.historyPlace);
-
 
     useEffect(() => {
         if(historyPlace !== 0 && !currentVolume) {
@@ -25,10 +24,10 @@ function App() {
 	if (historyPlace === 0) {
 		return <ThisPC />;
 	}
+
     return (
         <div>
             <SearchBar
-                currentDirectoryPath={currentDirectoryPath}
                 currentVolume={currentVolume}
             />
             <VolumePage />

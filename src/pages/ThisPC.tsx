@@ -5,7 +5,7 @@ import useNavigation from "../hooks/useNavigation";
 import { get_volumes } from "../IPC/IPCRequests"
 import { RootState } from "../state/store/store";
 import { useDispatch, useSelector } from "react-redux";
-import { setVolumes } from "../state/volumeSlice";
+import { setVolumes, setCurrentVolume } from "../state/volumeSlice";
 
 export default function ThisPC() {
     const { navigate } = useNavigation();

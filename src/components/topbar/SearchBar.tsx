@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchResults, setError } from "../../state/searchSlice";
 import Input, { InputSize } from "../Input";
-import useNavigation from "../../hooks/useNavigation";
 import { RootState } from "../../state/store/store";1
 import { search_files } from "../../IPC/IPCRequests";
+import { useNavigate } from "react-router";
 
 interface Props {
     currentVolume: string;
-    currentDirectoryPath: string;
 }
 
 export interface ISearchFilter {
@@ -18,7 +17,6 @@ export interface ISearchFilter {
 }
 
 export default function SearchBar({
-    currentDirectoryPath,
     currentVolume
 } : Props) {
     const [searchValue, setSearchValue] = useState("")
@@ -28,25 +26,20 @@ export default function SearchBar({
     //     accepptDirectories: true
     // })
 
-    const [currentPlace, setCurrentPlace] = useState<string | undefined>()
     const [loading, setLoading] = useState(false);
-    
+
 
     const dispatch = useDispatch();
-    const { navigate } = useNavigation();
+    const navigate = useNavigate();
     const searchResult = useSelector((state: RootState) => state.search.searchResults);
-
-
-    useEffect(() => {
-        const split = currentDirectoryPath.split("\\");
-        setCurrentPlace(split[split.length - 2]);
-    }, [currentDirectoryPath])
 
     async function onSearch() {
         if (currentVolume.length === 0) {
             alert("Please select a volume before searching");
             return;
         }
+
+        console.log("Volume:", currentVolume);
 
         try {
             setLoading(true);
@@ -63,10 +56,14 @@ export default function SearchBar({
         }
     }
 
-    useEffect(() => {  
-        const directory = searchResult.map(result => result.slice(0, result.lastIndexOf("S")))
+    useEffect(() => {
         if (searchResult.length > 0) {
-            navigate(directory[0]);
+            navigate('/results', {
+                state: {
+                    searchResult: searchResult,
+                    currentVolume: currentVolume
+                }
+            });
         }
     }, [searchResult])
 

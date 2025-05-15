@@ -35,7 +35,7 @@ export default function useNavigation() {
         dispatch(setCurrentVolume(path));
     };
 
-      const goHome = () => {
+    const goHome = () => {
         dispatch(setHistoryPlace(0));
         dispatch(setCurrentVolume(""));
     };

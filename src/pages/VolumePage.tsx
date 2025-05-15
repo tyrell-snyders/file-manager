@@ -58,7 +58,7 @@ export default function VolumePage() {
         let unlistenFn: Promise<() => void> | null = null;
 
         if (currentVolume) {
-             unlistenFn = listen('cache-updated', (event) => {
+                unlistenFn = listen('cache-updated', (event) => {
                 console.log('Cache update event received:', event); 
                 if (isSubscribed && typeof event.payload === 'string' && event.payload === currentVolume) {
                     console.log(`Cache updated for ${currentVolume}, refetching...`);
