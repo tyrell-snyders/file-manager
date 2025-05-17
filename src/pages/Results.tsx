@@ -36,15 +36,22 @@ export default function Results() {
     }
 
     return (
-        <div>
-            <button onClick={handleBackButton}>Back</button>
-            <h1>Results</h1>
-            <p>Search results:</p>
-            {state && state.searchResult.length > 0 && state.searchResult.map((r, i) => (
-                <div key={i}>
-                    <p>{r}</p>
+        <div className="flex flex-col h-screen">
+            <div className="flex-grow m-6">
+                <button onClick={handleBackButton}>Back</button>
+                <h1 className="mb-10">Results</h1>
+                <p>Search results:</p>
+                <div className="vh-100 grid md:grid-cols-2 lg:grid-cols-3">
+                    
+                    
+                    {state && state.searchResult.length > 0 && state.searchResult.map((r, i) => (
+                        <button key={i} className="m-2 border-2 border-gray-400 p-10 rounded-md">
+                            <p>{r}</p>
+                        </button>
+
+                    ))}
                 </div>
-            ))}
+            </div>
         </div>
     )
 }
