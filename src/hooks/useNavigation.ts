@@ -10,12 +10,14 @@ export default function useNavigation() {
 
 
     const onBackArrowClick = () => {
+        console.log("History Place", historyPlace);
         dispatch(goBack());
         // After going back, update currentVolume from the history
         if (historyPlace > 0) {
             dispatch(setCurrentVolume(pathHistory[historyPlace - 1]));
+            console.log("Current Volume Nigga", pathHistory[historyPlace - 1]);
         } else {
-             dispatch(setCurrentVolume(""));
+            dispatch(setCurrentVolume(""));
         }
     };
 

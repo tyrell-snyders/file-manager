@@ -25,11 +25,12 @@ export default function ThisPC() {
     }, [dispatch]);
 
     async function onVolumeClick(mountpoint: string) {
+        dispatch(setCurrentVolume(mountpoint));
         navigate(mountpoint)
     }
 
 	return (
-		<>
+		<>{/* aad */}
 			<div>
 				<div className="p-4 m-4">
 					<h1 className="font-bold">This PC</h1>

@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router";
-import useNavigation from "../hooks/useNavigation";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../state/store/store";
+import { useEffect } from "react";
+import { useLocation, useNavigate as useRouterNavigate } from "react-router";
+import { useDispatch } from "react-redux";
 import { setCurrentVolume } from "../state/volumeSlice";
+import { setSearchResults } from "../state/searchSlice";
 
 interface State {
     searchResult: string[],
@@ -13,27 +12,28 @@ interface State {
 }
 
 export default function Results() {
-    const navigation = useNavigate();
-    const { navigate, goHome } = useNavigation();
-    const [loading, setLoading] = useState(false);
-    const state: State = useLocation().state;
+    const routerNavigate = useRouterNavigate();
+    const location = useLocation();
+    const state: State = location.state;
     const dispatch = useDispatch();
-    const currentVolume = useSelector((state: RootState) => state.volume.currentVolume);
-
 
     useEffect(() => {
-        console.log("State", state);
-    }, [state])
+        if (state && state.currentVolume) {
+            dispatch(setCurrentVolume(state.currentVolume));
+        }
+    }, [state, dispatch]);
 
+    /**
+    * First, it clears the search results in the Redux store
+    * Then, it navigates back to the home page using the routerNavigate function
+    */
     const handleBackButton = () => {
-        // navigate(currentVolume)
-        navigation('/');
-        goHome();
+        dispatch(setSearchResults([]));
+        routerNavigate('/');
+        if (state && state.currentVolume) {
+            dispatch(setCurrentVolume(state.currentVolume));
+        }
     }
-
-    useEffect(() => {
-        console.log("Current Volume", currentVolume);
-    }, [currentVolume])
 
     return (
         <div>
