@@ -30,7 +30,7 @@ export default function ThisPC() {
     }
 
 	return (
-		<>{/* aad */}
+		<>
 			<div>
 				<div className="p-4 m-4">
 					<h1 className="font-bold">This PC</h1>

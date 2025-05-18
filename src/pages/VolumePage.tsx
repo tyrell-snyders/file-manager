@@ -7,7 +7,7 @@ import { RootState } from "../state/store/store";
 import { listen } from "@tauri-apps/api/event";
 import { list_files, get_mtd } from "../IPC/IPCRequests";
 import { setVolume, setMetadata } from "../state/volumeSlice";
-import { Mtd } from "../types";
+import { Mtd, SystemTime } from "../types";
 // import { event } from "@tauri-apps/api";
 import Drawer from "../components/Drawer";
 import Utils from "../utils/utils";
@@ -16,13 +16,16 @@ import Utils from "../utils/utils";
 export default function VolumePage() {
     const { onBackArrowClick } = useNavigation();
     const dispatch = useDispatch();
+
     const currentVolume = useSelector((state: RootState) => state.volume.currentVolume);
     const metadata = useSelector((state: RootState) => state.volume.metadata);
-    const [mData, setMData] = useState("")
     const volume = useSelector((state: RootState) => state.volume.volume);
+
+    const [mData, setMData] = useState("")
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(true);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [dateTime, setDateTime] = useState<SystemTime>({} as SystemTime);
 
     const fetchVolume = async(volumePath: string) => {
         setError("");
@@ -51,7 +54,6 @@ export default function VolumePage() {
         }
     }, [currentVolume, dispatch]);
 
- 
 
     useEffect(() => {
         let isSubscribed = true;
@@ -85,9 +87,14 @@ export default function VolumePage() {
     useEffect(() => {
         if (mData) {
             dispatch(setMetadata(handleMtd(mData)));
-            console.log("Metadata: ", metadata.created_at);
         }
     }, [mData])
+
+    useEffect(() => {
+        if (metadata) {
+            setDateTime(metadata.created_at);
+        }
+    }, [metadata])
 
     return (
         <div className="flex flex-col h-screen">
@@ -120,7 +127,10 @@ export default function VolumePage() {
                             <h2>{metadata.name}</h2>
                             <h4>Path: {metadata.path}</h4>
                             <h5>Size: {Utils.formatBytes(metadata.size)}</h5>
-                            {/* <h5>Created at: {Utils.formatDate(metadata.created_at)}</h5> */}
+                            {dateTime && (
+                                <h5>Created at: {Utils.formatDate(dateTime)}</h5>
+                            )}
+                            <h5>Type: {metadata.is_dir ? "Directory" : "File"}</h5>
                         </div>
                     )}
                 </Drawer>
