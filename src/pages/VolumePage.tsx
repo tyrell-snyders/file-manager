@@ -9,8 +9,10 @@ import { list_files, get_mtd } from "../IPC/IPCRequests";
 import { setVolume, setMetadata } from "../state/volumeSlice";
 import { Mtd, SystemTime } from "../types";
 // import { event } from "@tauri-apps/api";
-import Drawer from "../components/Drawer";
+import {Drawer} from "../components/Drawer";
 import Utils from "../utils/utils";
+import {FileComponent} from "../components/FileComponent.tsx";
+
 
 
 export default function VolumePage() {
@@ -61,7 +63,6 @@ export default function VolumePage() {
 
         if (currentVolume) {
                 unlistenFn = listen('cache-updated', (event) => {
-                console.log('Cache update event received:', event); 
                 if (isSubscribed && typeof event.payload === 'string' && event.payload === currentVolume) {
                     console.log(`Cache updated for ${currentVolume}, refetching...`);
                     fetchVolume(currentVolume); // Refetch data
@@ -96,6 +97,13 @@ export default function VolumePage() {
         }
     }, [metadata])
 
+    const handleOpnDrawer = (fileName: string) => {
+        openDrawer();
+        get_mtd(currentVolume, fileName.slice(3)).then(data => {
+            setMData(data);
+        });
+    }
+
     return (
         <div className="flex flex-col h-screen">
             <div className="flex-grow">
@@ -105,32 +113,25 @@ export default function VolumePage() {
                     {error && <ErrorPlaceholder error={error} />}
                     {loading && <LoadingPlaceholder />}
                     {!loading && !error && volume?.map((v, i) => (
-                        <button
+                        <FileComponent
+                            fileName={v.path.slice(3)}
+                            onClick={() => handleOpnDrawer(v.path)}
                             key={i}
-                            className="m-2 border-2 border-gray-400 p-10 rounded-md"
-                            onClick={() => {
-                                openDrawer();
-                                get_mtd(currentVolume, v.path.slice(3)).then(data => {
-                                    setMData(data);
-                                });
-                            }}
-                        >
-                            {v.path.slice(3)} <br />
-                        </button>
+                        />
                     ))}
                 </div>
             </div>
             <div className="flex-shrink-0">
                 <Drawer isOpen={isDrawerOpen} onClose={closeDrawer}>
                     {metadata  && (
-                        <div>
-                            <h2>{metadata.name}</h2>
-                            <h4>Path: {metadata.path}</h4>
-                            <h5>Size: {Utils.formatBytes(metadata.size)}</h5>
+                        <div className="flex flex-col justify-around">
+                            <h1 className="font-black pb-5">{metadata.name}</h1>
+                            <h3 className="text-l font-bold">Path: {metadata.path}</h3>
+                            <h5 className="text-l font-bold">Size: {Utils.formatBytes(metadata.size)}</h5>
                             {dateTime && (
-                                <h5>Created at: {Utils.formatDate(dateTime)}</h5>
+                                <h5 className="text-l font-bold">Created at: {Utils.formatDate(dateTime)}</h5>
                             )}
-                            <h5>Type: {metadata.is_dir ? "Directory" : "File"}</h5>
+                            <h5 className="text-l font-bold">Type: {metadata.is_dir ? "Directory" : "File"}</h5>
                         </div>
                     )}
                 </Drawer>

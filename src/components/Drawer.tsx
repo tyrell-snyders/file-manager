@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function Drawer(
+export function Drawer(
     props: {
         children: React.ReactNode;
         isOpen: boolean;

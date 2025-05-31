@@ -6,15 +6,6 @@ export interface Volume {
     total_gb: number;
 }
 
-export type DirectoryEntityType = "file" | "directory"
-export type DirectoryContentType = "File" | "Directory"
-
-export enum ContextMenuType {
-    None,
-    General,
-    DirectoryEntity
-}
-
 export interface SystemTime {
     secs_since_epoch: number;
     nanos_since_epoch: number;

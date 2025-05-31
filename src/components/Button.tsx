@@ -2,6 +2,7 @@ import { MouseEventHandler, ReactNode } from "react";
 
 export enum ButtonSize {
     Small,
+    Medium
 }
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
     className?: string;
 }
 
-export default function Button({ children, onClick, size, className }: Props) {
+export function Button({ children, onClick, size, className }: Props) {
     let styles = `bg-bright hover:bg-gray-600 rounded-lg shadow-xl ${className + " " || ""}`;
     switch (size) {
         case ButtonSize.Small:

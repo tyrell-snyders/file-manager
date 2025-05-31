@@ -24,9 +24,9 @@ export default function useNavigation() {
     const onForwardArrowClick = () => {
         dispatch(goForward());
         // After going forward, update currentVolume from the history
-         if (historyPlace < pathHistory.length - 1) {
-              dispatch(setCurrentVolume(pathHistory[historyPlace + 1]));
-         }
+        if (historyPlace < pathHistory.length - 1) {
+            dispatch(setCurrentVolume(pathHistory[historyPlace + 1]));
+        }
     };
 
     const canGoForward = (): boolean => historyPlace < pathHistory.length - 1;
