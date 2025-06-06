@@ -12,6 +12,7 @@ import { Mtd, SystemTime } from "../types";
 import {Drawer} from "../components/Drawer";
 import Utils from "../utils/utils";
 import {FileComponent} from "../components/FileComponent.tsx";
+import AddButton from "../components/main/Add/AddButton.tsx";
 
 
 
@@ -121,6 +122,11 @@ export default function VolumePage() {
                     ))}
                 </div>
             </div>
+
+            <div className="flex flex-row static m-6">
+                <AddButton />
+            </div>
+
             <div className="flex-shrink-0">
                 <Drawer isOpen={isDrawerOpen} onClose={closeDrawer}>
                     {metadata  && (

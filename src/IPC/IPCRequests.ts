@@ -8,3 +8,6 @@ export const search_files = async (path: string, query: string) =>
     await invoke<string[]>("search_file", { path, query });
 export const get_mtd = async(path: string, filaname: string) => 
     await invoke<string>("get_metadata", { path, filename: filaname });
+export const new_folder = async(path: string, folderName: string) => {
+    await invoke<string>("create_folder", {path, dir_name: folderName});
+}
