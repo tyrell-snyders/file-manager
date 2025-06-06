@@ -62,7 +62,7 @@ pub fn insert_cache(
         Err(e) => {
             log::error!("Transaction failed, retrying... ({}/{})", retries, 3);
             retries += 1;
-            tokio::time::sleep(tokio::time::Duration::from_millis(100 * retries));
+            let _ = tokio::time::sleep(tokio::time::Duration::from_millis(100 * retries));
             Ok(())
         }
     }

@@ -1,6 +1,5 @@
-use std::{ fs::{ metadata, FileType }, io::Result, path::PathBuf, time::SystemTime };
+use std::{ fs::{ metadata, File, FileType }, io::{Error, Result}, path::PathBuf, time::SystemTime };
 use thiserror::Error;
-use tokio::task;
 
 use super::storage::search_file;
 
@@ -54,19 +53,23 @@ impl Mtd {
     }
 }
 
+
+
 #[derive(Error, Debug, serde::Serialize)]
-pub enum MetadataError {
+pub enum FileError {
     #[error("IO error: {0}")]
     IoError(String),
     #[error("Unexpected error: {0}")]
     UnexpectedError(String),
 }
 
-impl From<std::io::Error> for MetadataError {
+impl From<std::io::Error> for FileError {
     fn from(err: std::io::Error) -> Self {
-        MetadataError::IoError(err.to_string())
+        FileError::IoError(err.to_string())
     }
 }
+
+
 
 #[tauri::command]
 /// Gets the metadata of a file or directory.
@@ -82,11 +85,11 @@ impl From<std::io::Error> for MetadataError {
 /// println!("{}", metadata);
 /// ```
 
-pub async fn get_metadata(path: String, filename: String) -> std::result::Result<String, MetadataError> {
+pub async fn get_metadata(path: String, filename: String) -> std::result::Result<String, FileError> {
     let file = search_file(path.clone(), filename.clone()).await.unwrap();
     if file.is_empty() {
         log::error!("File not found: {}", filename);
-        return Err(MetadataError::UnexpectedError(format!("File not found: {}", filename)));
+        return Err(FileError::UnexpectedError(format!("File not found: {}", filename)));
     }
 
     let file_path = file.get(0).unwrap();
@@ -96,25 +99,22 @@ pub async fn get_metadata(path: String, filename: String) -> std::result::Result
     // let file_metadata = metadata(file_path).unwrap();
     let result = Mtd::from_path(file_path.clone()).unwrap().to_json();
     log::info!("Result: {}", result);
-    // log::info!("File metadata: {:?}", file_metadata);
-    // let mut dir = vec![];
-    // let file_path_clone = file_path.clone();
-    // let result = task::spawn_blocking(move || {
-    //     let file_type = file_metadata.file_type();
-    //     if file_type.is_dir() {
-    //         for entry in std::fs::read_dir(path.clone()).unwrap() {
-    //             let entry = entry.unwrap();
-    //             let path = entry.path();
-    //             let metadata = Mtd::from_path(path).unwrap();
-    //             dir.push(metadata.to_json());
-    //         }
-    //     } else {
-    //         let metadata = Mtd::from_path(file_path_clone).unwrap();
-    //         dir.push(metadata.to_json());
-    //     }
-
-    //     Ok(serde_json::to_string(&dir).unwrap())
-    // }).await.unwrap();
+    
 
     Ok(result)
+}
+
+#[tauri::command]
+pub async fn create_folder(path: String, dir_name: String) -> std::result::Result<String, FileError> {
+    let folder_path = PathBuf::from(path).join(&dir_name);
+    match std::fs::create_dir(folder_path.clone()) {
+        Ok(_) => {
+            log::info!("Directory created successfully at: {}", folder_path.display());
+            Ok("Directory created successfully".to_string())
+        },
+        Err(err) => {
+            log::error!("Failed to create directory at: {}", folder_path.display());
+            Err(FileError::IoError(err.to_string()))
+        }
+    }
 }

@@ -6,7 +6,7 @@ mod commands;
 mod utils;
 mod db;
 
-use commands::{ storage::{ get_volumes, list_files, search_file, get_files_metadata }, file::get_metadata};
+use commands::{ storage::{ get_volumes, list_files, search_file, get_files_metadata }, file::{ get_metadata, create_folder }};
 use utils::config::FileSystemCache;
 
 
@@ -23,7 +23,8 @@ pub fn run() {
                     list_files, 
                     search_file,
                     get_files_metadata,
-                    get_metadata
+                    get_metadata,
+                    create_folder
                 ]).build(tauri::generate_context!())
                 .expect("error while building tauri application")
                 .run(|_app_handle, event| {
