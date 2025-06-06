@@ -68,7 +68,7 @@ export default function SearchBar({
     }, [searchResult])
 
     return (
-        <div className="absolute right-4 top-4">
+        <div className="absolute right-4 top-16">
             <Input 
                 value={searchValue}
                 setValue={setSearchValue}

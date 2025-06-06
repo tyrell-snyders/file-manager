@@ -106,11 +106,12 @@ export default function VolumePage() {
     }
 
     return (
-        <div className="flex flex-col h-screen">
-            <div className="flex-grow">
-                <h1>Volume: {currentVolume}</h1>
+        <div className="flex flex-col h-screen mt-6">
+            <h1>Volume: {currentVolume}</h1>
+            <div className="flex-grow mt-4">
+
                 <button onClick={onBackArrowClick}>Back</button>
-                <div className="vh-100 grid md:grid-cols-2 lg:grid-cols-3">
+                <div className="vh-100 grid md:grid-cols-2 lg:grid-cols-3 mt-2">
                     {error && <ErrorPlaceholder error={error} />}
                     {loading && <LoadingPlaceholder />}
                     {!loading && !error && volume?.map((v, i) => (
@@ -123,7 +124,7 @@ export default function VolumePage() {
                 </div>
             </div>
 
-            <div className="flex flex-row static m-6">
+            <div className="flex flex-row static p-6">
                 <AddButton />
             </div>
 
