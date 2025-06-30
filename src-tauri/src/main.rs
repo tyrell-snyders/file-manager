@@ -6,6 +6,7 @@ pub mod utils;
 pub mod commands;
 pub mod db;
 
+
 fn main() {
     let _ = logger::init_logger();
     file_manager_lib::run()
