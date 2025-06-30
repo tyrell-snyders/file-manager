@@ -6,7 +6,7 @@ pub fn init_logger() -> Result<(), SetLoggerError> {
     let log_file = OpenOptions::new()
         .create(true)
         .append(true)
-        .open("/src-tauri/logs/app.log")
+        .open("app.log")
     .expect("Failed to open log file");
     
     CombinedLogger::init(vec![

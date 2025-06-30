@@ -1,7 +1,11 @@
-use std::{ fs::{ metadata, File, FileType }, io::{Error, Result}, path::PathBuf, time::SystemTime };
+use std::{ any::Any, fs::{ metadata, File, FileType }, io::{Error, Result}, path::PathBuf, time::SystemTime };
 use thiserror::Error;
 use tauri::{Emitter, State};
-use crate::utils::config::FileSystemCache;
+use crate::{db::db_connection::get_filefolders, utils::config::FileSystemCache};
+use crate::db::models::*;
+use diesel::prelude::*;
+use crate::db::db_connection;
+use chrono::{DateTime, Utc};
 
 use super::storage::search_file;
 
@@ -95,14 +99,42 @@ pub async fn get_metadata(path: String, filename: String) -> std::result::Result
         return Err(FileError::UnexpectedError(format!("File not found: {}", filename)));
     }
 
-    let file_path = file.get(0).unwrap();
-
-    log::info!("File path: {:?}", file_path);
-
+    let file_path = file[0].clone();
+   
     // let file_metadata = metadata(file_path).unwrap();
-    let result = Mtd::from_path(file_path.clone()).unwrap().to_json();
+    let result = Mtd::from_path(file_path.clone().clone()).unwrap().to_json();
     log::info!("Result: {}", result);
 
+    // Add data to db
+    let mut conn = db_connection::establish_connection();
+    let _res = tokio::task::spawn_blocking(move || {
+        let new_metadata = Mtd::from_path(file_path.clone().clone()).unwrap();
+        use crate::db::schema::*;
+        let new_file = NewFileFolder { name: new_metadata.name.clone(), path: path.clone() };
+        diesel::insert_into(file_folders::table)
+            .values(&new_file)
+            .execute(&mut conn)
+            .expect("Error inserting new file folder");
+
+        let fileDB = get_filefolders(&mut conn, new_file.name.clone());
+        let file = fileDB.unwrap().into_iter().next().expect("File not found in DB");
+        let new_mtd = NewMetadata {
+            file_id: file.id,
+            size: new_metadata.size as i32,
+            is_dir: new_metadata.is_dir,
+            created_at: DateTime::<Utc>::from(new_metadata.created_at).naive_utc(),
+            modified_at: DateTime::<Utc>::from(new_metadata.modified_at).naive_utc(),
+            accessed_at: DateTime::<Utc>::from(SystemTime::now()).naive_utc(), // Assuming accessed_at is the current time
+        };
+
+        diesel::insert_into(metadata::table)
+            .values(&new_mtd)
+            .execute(&mut conn)
+            .expect("Error inserting new metadata");
+    }).await.map_err(|e| {
+        log::error!("Failed to insert metadata into database: {}", e);
+        FileError::UnexpectedError("Failed to insert metadata into database".to_string())
+    })?;
 
     Ok(result)
 }
