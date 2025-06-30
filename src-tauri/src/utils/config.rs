@@ -65,16 +65,6 @@ impl FileSystemCache {
             return;
         }
 
-        // let metadata_clone = metadata.clone();
-        // let path_clone = path.clone();
-
-        // tauri::async_runtime::spawn(async move {
-        //     match db_connection::insert_cache(path_clone, metadata_clone) {
-        //         Ok(_) => {},
-        //         Err(e) => log::error!("DB insert error: {}", e),
-        //     }
-        // });
-
         let mut cache = self.cache.lock().unwrap();
         cache.put(path, metadata);
     }

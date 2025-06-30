@@ -28,9 +28,11 @@ thiserror = "2.0.11"
 sysinfo = "0.33.1"
 walkdir = "2.5.0"
 lru = "0.13.0"
-rusqlite = "0.34.0"
 chrono = "0.4.40"
 log = "0.4.27"
 simplelog = "0.12.2"
 lazy_static = "1.5.0"
 
+[dependencies.tauri-plugin-sql]
+features = ["sqlite"] # or "postgres", or "mysql"
+version = "2.0.0"

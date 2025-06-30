@@ -1,5 +1,7 @@
 use std::{ fs::{ metadata, File, FileType }, io::{Error, Result}, path::PathBuf, time::SystemTime };
 use thiserror::Error;
+use tauri::{Emitter, State};
+use crate::utils::config::FileSystemCache;
 
 use super::storage::search_file;
 
@@ -86,6 +88,7 @@ impl From<std::io::Error> for FileError {
 /// ```
 
 pub async fn get_metadata(path: String, filename: String) -> std::result::Result<String, FileError> {
+        
     let file = search_file(path.clone(), filename.clone()).await.unwrap();
     if file.is_empty() {
         log::error!("File not found: {}", filename);
@@ -99,7 +102,7 @@ pub async fn get_metadata(path: String, filename: String) -> std::result::Result
     // let file_metadata = metadata(file_path).unwrap();
     let result = Mtd::from_path(file_path.clone()).unwrap().to_json();
     log::info!("Result: {}", result);
-    
+
 
     Ok(result)
 }

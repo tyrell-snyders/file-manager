@@ -36,7 +36,7 @@ export default function Results() {
     }
 
     /*
-    * TODO: Seperate the file/folder names from the directory path. Just make it look visually better insteqad of clutter.
+    * TODO: Separate the file/folder names from the directory path. Just make it look visually better insteqad of clutter.
     * */
     return (
         <div className="flex flex-col h-screen">

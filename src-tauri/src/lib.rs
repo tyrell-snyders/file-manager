@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate lazy_static;
-
 use tauri;
 mod commands;
 mod utils;
@@ -8,7 +5,6 @@ mod db;
 
 use commands::{ storage::{ get_volumes, list_files, search_file, get_files_metadata }, file::{ get_metadata, create_folder }};
 use utils::config::FileSystemCache;
-
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -18,6 +14,7 @@ pub fn run() {
             tauri::Builder::default()
                 .manage(cache)
                 .plugin(tauri_plugin_opener::init())
+                .plugin(tauri_plugin_sql::Builder::default().build())
                 .invoke_handler(tauri::generate_handler![
                     get_volumes, 
                     list_files, 
